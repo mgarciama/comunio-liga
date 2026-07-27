@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Liga El mundo para-lelo 26/27</title>
+<title>Liga El mundo para-lelo 26/27 · Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -418,7 +418,7 @@
 
 <nav>
   <div class="wrap">
-    <div class="brand"><span class="dot"></span>El mundo para-lelo</div>
+    <div class="brand"><span class="dot"></span>El mundo para-lelo <span style="font-size:9px; color:var(--amber-dim); font-family:'JetBrains Mono',monospace; margin-left:6px; border:1px solid var(--amber-dim); padding:1px 6px; border-radius:100px;">ADMIN</span></div>
     <ul>
       <li><a href="#bote">El bote</a></li>
       <li><a href="#reglas">Reglas</a></li>
@@ -654,7 +654,7 @@
     <div class="sec-head reveal">
       <span class="tag">Marcador · Jornada a jornada</span>
       <h2>¿Por dónde vamos?</h2>
-      <p>Posiciones de cada jugador en cada jornada. Las primas se calculan automáticamente.</p>
+      <p>Introduce la posición (1-14) que ha sacado cada jugador en cada jornada. Las primas se calculan solas, igual que en el Excel.</p>
     </div>
 
     <div class="jornada-banner reveal">
@@ -665,7 +665,7 @@
       <div class="info">Primas repartidas<br><b id="jb-primas">0€ / 152€</b></div>
     </div>
 
-    <p class="jornadas-note reveal">🥇 <b>1.º</b> = 2€ &nbsp;·&nbsp; 🥈🥉 <b>2.º y 3.º</b> = 1€ cada uno &nbsp;·&nbsp; el resto de posiciones no puntúan en primas.</p>
+    <p class="jornadas-note reveal">🥇 <b>1.º</b> = 2€ &nbsp;·&nbsp; 🥈🥉 <b>2.º y 3.º</b> = 1€ cada uno &nbsp;·&nbsp; el resto de posiciones no puntúan en primas. Los datos se guardan en este navegador (si quieres que todos los jugadores vean lo mismo en tiempo real, hay que conectarlo a una base de datos compartida — decídmelo).</p>
 
     <div class="jornadas-scroll reveal">
       <table class="jornadas-table">
@@ -830,18 +830,18 @@
 
     for(let j = 0; j < NUM_JORNADAS; j++){
       const td = document.createElement('td');
-      const span = document.createElement('span');
-      span.className = 'jornada-input';
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = 1; input.max = 14;
+      input.className = 'jornada-input';
+      input.dataset.p = i; input.dataset.j = j;
       const val = ranks[i][j];
       if(val !== null && val !== undefined){
-        span.textContent = val;
-        if(val === 1) span.classList.add('r1');
-        else if(val === 2 || val === 3) span.classList.add('r2');
-      } else {
-        span.textContent = '—';
-        span.style.color = 'var(--line-strong)';
+        input.value = val;
+        if(val === 1) input.classList.add('r1');
+        else if(val === 2 || val === 3) input.classList.add('r2');
       }
-      td.appendChild(span);
+      td.appendChild(input);
       tr.appendChild(td);
     }
 
@@ -861,6 +861,20 @@
     const totalPrimas = PLAYERS.reduce((sum, _, i) => sum + computePrimas(i), 0);
     document.getElementById('jb-primas').textContent = totalPrimas + '€ / 152€';
   }
+
+  jornadasBody.addEventListener('input', (e) => {
+    const input = e.target;
+    if(!input.classList.contains('jornada-input')) return;
+    const p = Number(input.dataset.p), j = Number(input.dataset.j);
+    let val = input.value === '' ? null : Math.max(1, Math.min(14, Math.round(Number(input.value))));
+    ranks[p][j] = val;
+    input.classList.remove('r1', 'r2');
+    if(val === 1) input.classList.add('r1');
+    else if(val === 2 || val === 3) input.classList.add('r2');
+    saveRanks();
+    document.getElementById('jornada-primas-' + p).textContent = computePrimas(p) + '€';
+    updateBanner();
+  });
 
   updateBanner();
 
