@@ -831,6 +831,10 @@
   head.appendChild(thPrimas);
 
   const jornadasBody = document.getElementById('jornadas-body');
+  const biwengerIconMap = {
+    'nolillo': 'nolillo2️⃣2️⃣',
+    'figura del toreo': 'los carrinton fc',
+  };
   let biwengerIcons = {};
   fetch('biwenger-data.json')
     .then(r => r.json())
@@ -846,7 +850,8 @@
 
     const tdName = document.createElement('td');
     tdName.className = 'col-jugador';
-    const icon = biwengerIcons[p.equipo.toLowerCase()];
+    const lookup = biwengerIconMap[p.equipo.toLowerCase()] || p.equipo.toLowerCase();
+    const icon = biwengerIcons[lookup];
     const iconHtml = icon ? `<img src="${icon}" alt="" style="width:18px;height:18px;border-radius:50%;vertical-align:middle;margin-right:6px;object-fit:cover;">` : '';
     tdName.innerHTML = `${iconHtml}${p.equipo}<span class="mgr">${p.nombre}</span>`;
     tr.appendChild(tdName);
