@@ -56,7 +56,8 @@
   nav ul{ display:flex; gap:28px; list-style:none; font-size:14px; font-weight:600; letter-spacing:0.02em; }
   nav a{ text-decoration:none; color:var(--chalk-dim); transition:color .2s; }
   nav a:hover{ color:var(--amber); }
-  .nav-toggle{ display:none; }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--line-strong); color:var(--chalk); font-size:22px; padding:4px 10px; border-radius:4px; cursor:pointer; }
+  nav ul.open{ display:flex !important; flex-direction:column; position:absolute; top:64px; left:0; right:0; background:rgba(11,61,46,0.96); backdrop-filter:blur(8px); padding:12px 28px 18px; gap:14px; border-bottom:1px solid var(--line); }
 
   /* ---------- HERO ---------- */
   header.hero{
@@ -389,6 +390,7 @@
   /* ---------- RESPONSIVE ---------- */
   @media (max-width: 860px){
     nav ul{ display:none; }
+    .nav-toggle{ display:block; }
     .hero-grid{ grid-template-columns:1fr; }
     .bote-grid{ grid-template-columns:1fr; }
     .rules-grid{ grid-template-columns:1fr; }
@@ -427,7 +429,8 @@
       <li><a href="#clasificacion">Clasificación</a></li>
       <li><a href="#pagos">Pagos</a></li>
     </ul>
-  </div>
+      <button class="nav-toggle" aria-label="Menú">☰</button>
+    </div>
 </nav>
 
 <header class="hero">
@@ -749,6 +752,14 @@
 </footer>
 
 <script>
+  // --- Menú móvil ---
+  document.querySelector('.nav-toggle').addEventListener('click', function(){
+    document.querySelector('nav ul').classList.toggle('open');
+  });
+  document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', function(){
+    document.querySelector('nav ul').classList.remove('open');
+  }));
+
   // Datos base de jugadores y cuotas (rellenar/editar aqui cuando avance la temporada)
   const PLAYERS = [
     {nombre:"Jose Negro",  equipo:"El Maki Roldan",            pagado:true,  cuota:"40€"},
