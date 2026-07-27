@@ -952,7 +952,7 @@
       row.innerHTML = `
         <span class="dot"></span>
         <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
-        <input class="pago-monto" data-idx="${idx}" value="${monto}" style="width:70px; background:transparent; border:none; color:var(--chalk-dim); font-family:'JetBrains Mono',monospace; text-align:right; font-size:13px; outline:none;"${isSpecial ? ' readonly' : ''}>
+        <input class="pago-monto" data-idx="${idx}" value="${monto}" style="width:90px; background:transparent; border:none; border-bottom:1px dashed var(--line-strong); color:var(--chalk-dim); font-family:'JetBrains Mono',monospace; text-align:right; font-size:13px; outline:none;">
         <span style="color:var(--chalk-dim)">€</span>
         <button class="pago-toggle" data-idx="${idx}" style="background:var(--amber-dim); border:none; color:var(--navy); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; cursor:pointer;">${j.pagado ? 'PAGADO' : 'NO PAGADO'}</button>
       `;
@@ -972,7 +972,8 @@
       input.addEventListener('input', function(){
         const idx = Number(this.dataset.idx);
         const val = this.value.trim();
-        pagos[idx].cuota = val.endsWith('€') ? val : val + '€';
+        const hasExtra = val.includes('+') || val.includes('pendiente') || val.includes('premium');
+        pagos[idx].cuota = val + (hasExtra || val.endsWith('€') ? '' : '€');
         savePagos();
         renderPagos();
       });
