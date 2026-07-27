@@ -2,3 +2,4 @@
 .DS_Store
 node_modules/
 biwenger-raw*.json
+biwenger-market.json
