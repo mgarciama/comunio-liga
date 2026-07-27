@@ -895,39 +895,43 @@
   updateBanner();
 
   // --- Seccion de pagos ---
+  const PAGOS_KEY = 'comunio_pagos_v1';
   const BOTE_ESPERADO = 530;
-  const RECAUDADO = 380; // segun hoja de morosos
-  const pagados = PLAYERS.filter(j => j.pagado);
-  const pendientes = PLAYERS.filter(j => !j.pagado);
 
-  document.getElementById('pg-pagados').textContent = `${pagados.length}/${PLAYERS.length}`;
-  document.getElementById('pg-pendientes').textContent = pendientes.length;
-  document.getElementById('pg-restante').textContent = `${BOTE_ESPERADO - RECAUDADO}€ por cobrar`;
-  document.getElementById('pg-fill').style.width = `${Math.round((RECAUDADO / BOTE_ESPERADO) * 100)}%`;
+  let pagos = PLAYERS.map(p => ({...p}));
+  try{ const raw = localStorage.getItem(PAGOS_KEY); if(raw) pagos = JSON.parse(raw); }catch(e){}
 
-  const listaPagados = document.getElementById('lista-pagados');
-  pagados.forEach(j => {
-    const row = document.createElement('div');
-    row.className = 'player-row';
-    row.innerHTML = `
-      <span class="dot"></span>
-      <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
-      <span class="amount">${j.cuota}</span>
-    `;
-    listaPagados.appendChild(row);
-  });
+  function renderPagos(){
+    const pagadosList = pagos.filter(j => j.pagado);
+    const pendientesList = pagos.filter(j => !j.pagado);
+    const recaudado = pagos.reduce((sum, j) => j.pagado ? sum + (parseInt(j.cuota) || 0) : sum, 0);
+    const pct = Math.min(100, Math.round((recaudado / BOTE_ESPERADO) * 100));
+    const resto = BOTE_ESPERADO - recaudado;
 
-  const listaPendientes = document.getElementById('lista-pendientes');
-  pendientes.forEach(j => {
-    const row = document.createElement('div');
-    row.className = 'player-row';
-    row.innerHTML = `
-      <span class="dot"></span>
-      <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
-      <span class="amount">${j.cuota}</span>
-    `;
-    listaPendientes.appendChild(row);
-  });
+    document.getElementById('pg-pagados').textContent = pagadosList.length+'/'+pagos.length;
+    document.getElementById('pg-pendientes').textContent = pendientesList.length;
+    document.getElementById('pg-recaudado').innerHTML = recaudado+'€ <span style="font-size:18px;color:var(--chalk-dim)">/ '+BOTE_ESPERADO+'€</span>';
+    document.getElementById('pg-restante').textContent = (resto > 0 ? resto+'€ por cobrar' : '¡Completado!');
+    document.getElementById('pg-fill').style.width = pct+'%';
+
+    const listaPagados = document.getElementById('lista-pagados');
+    const listaPendientes = document.getElementById('lista-pendientes');
+    listaPagados.innerHTML = '';
+    listaPendientes.innerHTML = '';
+
+    pagos.forEach(j => {
+      const row = document.createElement('div');
+      row.className = 'player-row';
+      row.innerHTML = `
+        <span class="dot"></span>
+        <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
+        <span class="amount">${j.cuota}</span>
+      `;
+      (j.pagado ? listaPagados : listaPendientes).appendChild(row);
+    });
+  }
+
+  renderPagos();
 
   // --- Datos Biwenger (clasificación real por puntos) ---
   async function loadBiwengerData() {
