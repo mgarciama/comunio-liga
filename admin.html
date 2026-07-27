@@ -940,9 +940,10 @@
       standings.forEach((s, idx) => {
         const tr = document.createElement('tr');
         const pos = s.position || (idx + 1);
+        const iconHtml = s.icon ? `<img src="${s.icon}" alt="" style="width:22px; height:22px; border-radius:50%; vertical-align:middle; margin-right:10px; object-fit:cover;">` : '';
         tr.innerHTML = `
           <td class="num" style="font-family:'JetBrains Mono',monospace; font-weight:700;">${pos}</td>
-          <td class="jugador">${s.name}</td>
+          <td class="jugador">${iconHtml}${s.name}</td>
           <td class="num" style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:16px; color:var(--amber);">${s.points.toLocaleString()}</td>
         `;
         tbody.appendChild(tr);

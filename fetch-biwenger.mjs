@@ -63,7 +63,7 @@ async function main() {
     position: s.position,
     name: s.name,
     points: s.points,
-    icon: s.icon,
+    icon: s.icon ? 'https://cdn.biwenger.com/' + s.icon : null,
     id: s.id,
   }));
 
