@@ -1,0 +1,39 @@
+name: Update Biwenger Data
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch Biwenger data
+        env:
+          BIWENGER_EMAIL: ${{ secrets.BIWENGER_EMAIL }}
+          BIWENGER_PASSWORD: ${{ secrets.BIWENGER_PASSWORD }}
+        run: node fetch-biwenger.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add biwenger-data.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "⬆ Update Biwenger standings"
+            git push
+          fi

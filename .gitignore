@@ -1,0 +1,4 @@
+.biwenger-credentials.json
+.DS_Store
+node_modules/
+biwenger-raw*.json
