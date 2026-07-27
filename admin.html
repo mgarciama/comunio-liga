@@ -831,12 +831,24 @@
   head.appendChild(thPrimas);
 
   const jornadasBody = document.getElementById('jornadas-body');
+  let biwengerIcons = {};
+  fetch('biwenger-data.json')
+    .then(r => r.json())
+    .then(data => {
+      (data.standings || []).forEach(s => { biwengerIcons[s.name.toLowerCase()] = s.icon; });
+      renderJornadas();
+    })
+    .catch(() => renderJornadas());
+
+  function renderJornadas(){
   PLAYERS.forEach((p, i) => {
     const tr = document.createElement('tr');
 
     const tdName = document.createElement('td');
     tdName.className = 'col-jugador';
-    tdName.innerHTML = `${p.equipo}<span class="mgr">${p.nombre}</span>`;
+    const icon = biwengerIcons[p.equipo.toLowerCase()];
+    const iconHtml = icon ? `<img src="${icon}" alt="" style="width:18px;height:18px;border-radius:50%;vertical-align:middle;margin-right:6px;object-fit:cover;">` : '';
+    tdName.innerHTML = `${iconHtml}${p.equipo}<span class="mgr">${p.nombre}</span>`;
     tr.appendChild(tdName);
 
     for(let j = 0; j < NUM_JORNADAS; j++){
@@ -864,6 +876,7 @@
 
     jornadasBody.appendChild(tr);
   });
+  }
 
   function updateBanner(){
     const actual = computeJornadaActual();
