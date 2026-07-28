@@ -904,7 +904,7 @@
   function renderPagos(){
     const pagadosList = pagos.filter(j => j.pagado);
     const pendientesList = pagos.filter(j => !j.pagado);
-    const recaudado = pagos.reduce((sum, j) => j.pagado ? sum + (parseInt(j.cuota) || 0) : sum, 0);
+    const recaudado = pagos.reduce((sum, j) => sum + (parseInt(j.cuota) || 0), 0);
     const pct = Math.min(100, Math.round((recaudado / BOTE_ESPERADO) * 100));
     const resto = BOTE_ESPERADO - recaudado;
 

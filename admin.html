@@ -926,7 +926,6 @@
     const pagadosList = pagos.filter(j => j.pagado);
     const pendientesList = pagos.filter(j => !j.pagado);
     const recaudado = pagos.reduce((sum, j) => {
-      if(!j.pagado) return sum;
       const m = parseInt(j.cuota) || 0;
       return sum + m;
     }, 0);
