@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-28T10:25:35.310Z",
+  "updatedAt": "2026-07-29T10:31:28.468Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -9,10 +9,10 @@
   "standings": [
     {
       "position": 1,
-      "name": "Los Reyes de Europa C.F",
+      "name": "Fermux",
       "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/9990906.png?v=60",
-      "id": 9990906
+      "icon": "https://cdn.biwenger.com/i/u/2217630.png",
+      "id": 2217630
     },
     {
       "position": 2,
@@ -23,45 +23,45 @@
     },
     {
       "position": 3,
-      "name": "Turbanera",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/icons/37.png",
-      "id": 2216723
-    },
-    {
-      "position": 4,
-      "name": "Fermux",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/2217630.png",
-      "id": 2217630
-    },
-    {
-      "position": 5,
       "name": "Nolillo2️⃣2️⃣",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/2213276.png",
       "id": 2213276
     },
     {
-      "position": 6,
+      "position": 4,
+      "name": "Los Reyes de Europa C.F",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/9990906.png?v=60",
+      "id": 9990906
+    },
+    {
+      "position": 5,
       "name": "DIEGO ARMANDO MARADONA",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13965613.png",
       "id": 13965613
     },
     {
-      "position": 7,
+      "position": 6,
       "name": "Bayer de Los Caídos FC",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13955595.png",
       "id": 13955595
     },
     {
-      "position": 8,
+      "position": 7,
       "name": "la makina",
       "points": 0,
       "icon": "https://lh3.googleusercontent.com/a/AGNmyxZ9PpTff59PDqGLrbwYyHyB8cv7vujOzuCjRBO7=s300-c",
       "id": 13949428
+    },
+    {
+      "position": 8,
+      "name": "Turbanera",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/icons/37.png",
+      "id": 2216723
     },
     {
       "position": 9,
@@ -93,17 +93,17 @@
     },
     {
       "position": 13,
-      "name": "MouTeam",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/13774004.png",
-      "id": 13975535
-    },
-    {
-      "position": 14,
       "name": "Gryffindor",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/2214626.png?v=38",
       "id": 2214626
+    },
+    {
+      "position": 14,
+      "name": "MouTeam",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/13774004.png",
+      "id": 13975535
     }
   ]
 }
