@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-29T10:31:28.468Z",
+  "updatedAt": "2026-07-30T10:14:00.142Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -16,17 +16,17 @@
     },
     {
       "position": 2,
-      "name": "Oportopor",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/2213275.png",
-      "id": 2213275
-    },
-    {
-      "position": 3,
       "name": "Nolillo2️⃣2️⃣",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/2213276.png",
       "id": 2213276
+    },
+    {
+      "position": 3,
+      "name": "Oportopor",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/2213275.png",
+      "id": 2213275
     },
     {
       "position": 4,
@@ -37,52 +37,52 @@
     },
     {
       "position": 5,
-      "name": "DIEGO ARMANDO MARADONA",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/13965613.png",
-      "id": 13965613
-    },
-    {
-      "position": 6,
       "name": "Bayer de Los Caídos FC",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13955595.png",
       "id": 13955595
     },
     {
-      "position": 7,
+      "position": 6,
       "name": "la makina",
       "points": 0,
       "icon": "https://lh3.googleusercontent.com/a/AGNmyxZ9PpTff59PDqGLrbwYyHyB8cv7vujOzuCjRBO7=s300-c",
       "id": 13949428
     },
     {
-      "position": 8,
-      "name": "Turbanera",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/icons/37.png",
-      "id": 2216723
-    },
-    {
-      "position": 9,
-      "name": "Luis de la Fuente",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/13946856.png",
-      "id": 13946856
-    },
-    {
-      "position": 10,
+      "position": 7,
       "name": "Sonámbulos Hermanos UF",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/12595114.png",
       "id": 12595114
     },
     {
-      "position": 11,
+      "position": 8,
+      "name": "Luis de la Fuente",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/13946856.png",
+      "id": 13946856
+    },
+    {
+      "position": 9,
       "name": "Los Carrinton FC",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/t/15.png",
       "id": 2213283
+    },
+    {
+      "position": 10,
+      "name": "Turbanera",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/icons/37.png",
+      "id": 2216723
+    },
+    {
+      "position": 11,
+      "name": "DIEGO ARMANDO MARADONA",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/13965613.png",
+      "id": 13965613
     },
     {
       "position": 12,
