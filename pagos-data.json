@@ -1,0 +1,86 @@
+[
+  {
+    "nombre": "Jose Negro",
+    "equipo": "El Maki Roldan",
+    "pagado": true,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Harryson",
+    "equipo": "Gryffindor",
+    "pagado": true,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Tary",
+    "equipo": "Los Carrinton FC",
+    "pagado": false,
+    "cuota": "10€ + pendiente"
+  },
+  {
+    "nombre": "Gaspar",
+    "equipo": "Los Reyes de Europa C.F",
+    "pagado": true,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Arroyo",
+    "equipo": "Turbanera",
+    "pagado": true,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Charli",
+    "equipo": "Fermux",
+    "pagado": false,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Manolillo",
+    "equipo": "Nolillo",
+    "pagado": true,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Tanke",
+    "equipo": "Sonámbulos Hermanos UF",
+    "pagado": false,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Enrique",
+    "equipo": "Oportopor",
+    "pagado": true,
+    "cuota": "10€ + premium"
+  },
+  {
+    "nombre": "Jaime",
+    "equipo": "Luis de la Fuente",
+    "pagado": true,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Osquillar",
+    "equipo": "La Makina",
+    "pagado": true,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Javi",
+    "equipo": "Bayer de Los Caídos FC",
+    "pagado": true,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Borja",
+    "equipo": "MouTeam",
+    "pagado": true,
+    "cuota": "40€"
+  },
+  {
+    "nombre": "Alvaro",
+    "equipo": "Diego Armando Maradona",
+    "pagado": true,
+    "cuota": "40€"
+  }
+]
