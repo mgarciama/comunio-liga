@@ -771,7 +771,10 @@
 <footer>
   <div class="wrap">
     <div class="brand"><span class="dot"></span>El mundo para-lelo</div>
-    <p>Temporada 26/27 · 14 jugadores · 38 jornadas</p>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <button class="save-btn" id="save-btn-footer" title="Guardar cambios">💾 Guardar</button>
+      <p>Temporada 26/27 · 14 jugadores · 38 jornadas</p>
+    </div>
   </div>
 </footer>
 
@@ -783,17 +786,6 @@
     <input type="password" id="login-pass" placeholder="Contraseña">
     <button class="btn" id="login-btn">Entrar</button>
     <p class="err" id="login-err">Credenciales incorrectas</p>
-  </div>
-</div>
-
-<div class="login-modal" id="warn-modal">
-  <div class="login-box" style="text-align:center;">
-    <h3>⚠ Cambios sin guardar</h3>
-    <p>Si sales ahora perderás los cambios. ¿Quieres salir sin guardar?</p>
-    <div style="display:flex; gap:10px; margin-top:16px;">
-      <button class="btn" id="warn-continue" style="background:var(--red);">Salir sin guardar</button>
-      <button class="btn" id="warn-cancel" style="background:var(--line-strong);">Cancelar</button>
-    </div>
   </div>
 </div>
 
@@ -824,12 +816,6 @@
   // Logout trigger
   document.getElementById('logout-trigger').addEventListener('click', e => {
     e.preventDefault();
-    if(dirty){ document.getElementById('warn-modal').classList.add('open'); return; }
-    doLogout();
-  });
-  document.getElementById('warn-cancel').addEventListener('click', () => document.getElementById('warn-modal').classList.remove('open'));
-  document.getElementById('warn-continue').addEventListener('click', () => {
-    document.getElementById('warn-modal').classList.remove('open');
     doLogout();
   });
 
@@ -843,10 +829,10 @@
     e.preventDefault();
     publicarCambios();
   });
+  document.getElementById('save-btn-footer').addEventListener('click', publicarCambios);
 
   // Login modal
   document.getElementById('login-modal').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
-  document.getElementById('warn-modal').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
   document.getElementById('login-btn').addEventListener('click', () => {
     const u = document.getElementById('login-user').value, p = document.getElementById('login-pass').value;
     if(u === ADMIN_USER && p === ADMIN_PASS){
@@ -884,13 +870,13 @@
   }
 
   async function publicarCambios(){
-    const btn = document.getElementById('save-trigger');
-    btn.textContent = '⏳...';
+    const btns = [document.getElementById('save-trigger'), document.getElementById('save-btn-footer')];
+    btns.forEach(b => { if(b) b.textContent = '⏳...'; });
     const ok1 = await ghSave('jornadas-data.json', ranks);
     const ok2 = await ghSave('pagos-data.json', pagos);
-    btn.textContent = (ok1 && ok2) ? '✅ Guardado' : '❌ Error';
+    btns.forEach(b => { if(b) b.textContent = (ok1 && ok2) ? '✅ Guardado' : '❌ Error'; });
     if(ok1 && ok2) dirty = false;
-    setTimeout(() => { btn.textContent = '💾 Guardar'; }, 2500);
+    setTimeout(() => { btns.forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2500);
   }
 
   async function loadFromRepo(path){
