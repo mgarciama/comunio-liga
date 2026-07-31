@@ -432,8 +432,6 @@
   .admin-active .admin-badge{ display:inline; }
   .admin-only{ display:none; }
   .admin-active .admin-only{ display:inline-block; }
-  .save-btn{ display:none; font-family:'JetBrains Mono',monospace; font-size:11px; background:var(--amber); color:var(--navy); border:none; padding:4px 12px; border-radius:4px; cursor:pointer; font-weight:700; }
-  .admin-active .save-btn{ display:inline-block; }
 </style>
 </head>
 <body>
@@ -768,7 +766,6 @@
   <div class="wrap">
     <div class="brand"><span class="dot"></span>El mundo para-lelo</div>
     <div style="display:flex;align-items:center;gap:12px;">
-      <button class="save-btn" id="save-btn" title="Guardar cambios en el servidor">💾 GUARDAR</button>
       <p>Temporada 26/27 · 14 jugadores · 38 jornadas</p>
       <button class="login-trigger" id="login-trigger">🔒 Admin</button>
     </div>
@@ -790,7 +787,6 @@
   // --- Auth ---
   const ADMIN_USER = '@admin';
   const ADMIN_PASS = 'Europa001@';
-  const GITHUB_REPO = 'mgarciama/comunio-liga';
 
   let isAdmin = sessionStorage.getItem('comunio_admin') === '1';
 
@@ -825,41 +821,6 @@
   document.querySelectorAll('#login-user,#login-pass').forEach(el => {
     el.addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('login-btn').click(); });
   });
-
-  // --- GitHub API ---
-  function getToken(){ return localStorage.getItem('comunio_gh_token'); }
-
-  async function ghGet(path){
-    const t = getToken();
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`, {
-      headers: t ? { Authorization: 'Bearer ' + t } : {}
-    });
-    if(!res.ok) return null;
-    const data = await res.json();
-    try{ return { sha: data.sha, content: JSON.parse(atob(data.content)) }; }
-    catch{ return null; }
-  }
-
-  async function ghPut(path, content, sha){
-    const t = getToken();
-    if(!t){ alert('⚠ Configura tu token de GitHub en Settings → Developer settings → Personal access tokens → repo scope. Luego pégalo aquí.'); const token = prompt('Token de GitHub:'); if(token){ localStorage.setItem('comunio_gh_token', token); return ghPut(path, content, sha); } return false; }
-    const body = { message: 'Update data', content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))), sha };
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`, {
-      method: 'PUT', headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-    });
-    if(!res.ok){ const e = await res.json(); alert('Error al guardar: ' + (e.message || res.status)); return false; }
-    return true;
-  }
-
-  async function saveToGitHub(){
-    const saveBtn = document.getElementById('save-btn');
-    saveBtn.textContent = '⏳ Guardando...';
-    const jornadasOk = await ghPut('jornadas-data.json', ranks, null);
-    const pagosOk = await ghPut('pagos-data.json', pagos, null);
-    saveBtn.textContent = (jornadasOk && pagosOk) ? '✅ Guardado' : '❌ Error';
-    setTimeout(() => { saveBtn.textContent = '💾 GUARDAR'; }, 2000);
-  }
-  document.getElementById('save-btn').addEventListener('click', saveToGitHub);
 
   // Datos base de jugadores y cuotas (rellenar/editar aqui cuando avance la temporada)
 
@@ -1010,6 +971,8 @@
     }
     updateBanner();
   }
+
+  function updateBanner(){
     const actual = computeJornadaActual();
     document.getElementById('jb-actual').innerHTML = actual + ' <span>/ 38</span>';
     document.getElementById('jb-label').textContent = actual === 0 ? 'Aún sin empezar' : 'Jornada ' + actual + ' jugada';
