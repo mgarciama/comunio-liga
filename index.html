@@ -910,15 +910,15 @@
   const PLAYERS = [
     {nombre:"Jose Negro",  equipo:"El Maki Roldan",            pagado:true,  cuota:"40€"},
     {nombre:"Harryson",    equipo:"Gryffindor",                pagado:true,  cuota:"40€"},
-    {nombre:"Tary",        equipo:"Los Carrinton FC",          pagado:false, cuota:"10€ + pendiente"},
+    {nombre:"Tary",        equipo:"Los Carrinton FC",          pagado:false, cuota:"10€"},
     {nombre:"Gaspar",      equipo:"Los Reyes de Europa C.F",   pagado:true,  cuota:"40€"},
     {nombre:"Arroyo",      equipo:"Turbanera",                 pagado:true,  cuota:"40€"},
-    {nombre:"Charli",      equipo:"Fermux",                    pagado:false, cuota:"40€"},
+    {nombre:"Charli",      equipo:"Fermux",                    pagado:false, cuota:"20€"},
     {nombre:"Manolillo",   equipo:"Nolillo",                   pagado:true,  cuota:"40€"},
-    {nombre:"Tanke",       equipo:"Sonámbulos Hermanos UF",    pagado:false, cuota:"40€"},
-    {nombre:"Enrique",     equipo:"Oportopor",                 pagado:true,  cuota:"10€ + premium"},
+    {nombre:"Tanke",       equipo:"Sonámbulos Hermanos UF",    pagado:false, cuota:"0€"},
+    {nombre:"Enrique",     equipo:"Oportopor",                 pagado:true,  cuota:"10€"},
     {nombre:"Jaime",       equipo:"Luis de la Fuente",         pagado:true,  cuota:"40€"},
-    {nombre:"Osquillar",   equipo:"La Makina",                 pagado:false, cuota:"40€"},
+    {nombre:"Osquillar",   equipo:"La Makina",                 pagado:true,  cuota:"40€"},
     {nombre:"Javi",        equipo:"Bayer de Los Caídos FC",    pagado:true,  cuota:"40€"},
     {nombre:"Borja",       equipo:"MouTeam",                   pagado:true,  cuota:"40€"},
     {nombre:"Alvaro",      equipo:"Diego Armando Maradona",    pagado:true,  cuota:"40€"},
@@ -1108,52 +1108,67 @@
     pagos.forEach((j, idx) => {
       const row = document.createElement('div');
       row.className = 'player-row';
-      const pagado = parseInt(j.cuota) || 0;
-      const debe = CUOTA_NORMAL - pagado;
-      const pct = Math.round((pagado / CUOTA_NORMAL) * 100);
+      row.style.cssText = 'display:flex; align-items:center; gap:10px;';
+      const pagadoVal = parseInt(j.cuota) || 0;
+      const debeVal = Math.max(0, CUOTA_NORMAL - pagadoVal);
 
       if(isAdmin){
         row.innerHTML = `
           <span class="dot"></span>
-          <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
-          <input class="pago-monto" data-idx="${idx}" value="${j.cuota.replace('€','').trim()}" style="width:85px; background:transparent; border:none; border-bottom:1px dashed var(--line-strong); color:var(--chalk-dim); font-family:'JetBrains Mono',monospace; text-align:right; font-size:13px; outline:none;">
-          <button class="pago-toggle" data-idx="${idx}" style="background:var(--amber-dim); border:none; color:var(--navy); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; cursor:pointer; white-space:nowrap;">${j.pagado ? 'PAGADO' : 'NO PAGADO'}</button>
+          <span class="who" style="flex:1;"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
+          <div style="display:flex; align-items:center; gap:4px;">
+            <span style="font-size:11px; color:var(--chalk-dim);">Pagado</span>
+            <input class="pago-monto" data-idx="${idx}" value="${j.cuota.replace('€','').replace('+ pendiente','').replace('+ premium','').trim()}" style="width:52px; background:var(--pitch-dark); border:1px solid var(--line-strong); border-radius:4px; color:var(--chalk); font-family:'JetBrains Mono',monospace; text-align:center; font-size:14px; font-weight:700; padding:4px; outline:none;">
+            <span style="font-size:11px; color:var(--chalk-dim);">€</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:4px;">
+            <span style="font-size:11px; color:var(--chalk-dim);">Debe</span>
+            <input class="pago-debe" value="${debeVal}" readonly style="width:52px; background:transparent; border:1px solid var(--line); border-radius:4px; color:var(--amber-dim); font-family:'JetBrains Mono',monospace; text-align:center; font-size:14px; font-weight:700; padding:4px; outline:none; cursor:default;">
+            <span style="font-size:11px; color:var(--chalk-dim);">€</span>
+          </div>
+          <button class="pago-toggle" data-idx="${idx}" style="background:${j.pagado?'#4ADE80':'var(--amber-dim)'}; border:none; color:var(--navy); font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; cursor:pointer; white-space:nowrap;">${j.pagado ? '✓' : '✗'}</button>
         `;
       } else {
-        const pctColor = j.pagado ? 'var(--amber)' : (pagado > 0 ? 'var(--amber-dim)' : 'var(--line-strong)');
+        const pct = Math.round((pagadoVal / CUOTA_NORMAL) * 100);
+        const dotColor = j.pagado ? '#4ADE80' : (pagadoVal > 0 ? 'var(--amber-dim)' : 'var(--red)');
         row.innerHTML = `
-          <span class="dot"></span>
-          <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
-          <span class="amount" style="text-align:right;">
-            <span style="font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700;">${j.cuota}</span>
-            <span class="det">${j.pagado ? '✅ Completado' : (pagado > 0 ? 'Pagado: '+pagado+'€ · Debe: '+debe+'€' : 'Debe: '+debe+'€')}</span>
-          </span>
+          <span class="dot" style="background:${dotColor}; box-shadow:0 0 6px ${dotColor};"></span>
+          <span class="who" style="flex:1;"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
+          <div style="text-align:right;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; color:var(--chalk);">${j.pagado ? '40€' : pagadoVal+'€'}</div>
+            <div style="font-size:11px; color:${j.pagado ? '#4ADE80' : (pagadoVal > 0 ? 'var(--amber-dim)' : 'var(--red)')};">
+              ${j.pagado ? '✅ Completado' : (pagadoVal > 0 ? 'Pagado: '+pagadoVal+'€ · Debe: '+debeVal+'€' : 'Debe: '+debeVal+'€')}
+            </div>
+          </div>
         `;
       }
       (j.pagado ? listaPagados : listaPendientes).appendChild(row);
     });
 
     if(isAdmin){
-      // Usar event delegation en los contenedores para no perder foco
       listaPagados.onclick = listaPendientes.onclick = function(e){
         const btn = e.target.closest('.pago-toggle');
         if(!btn) return;
         const idx = Number(btn.dataset.idx);
         pagos[idx].pagado = !pagos[idx].pagado;
         savePagos(); dirty = true;
-        renderPagos(); // necesario para mover entre columnas
+        renderPagos();
       };
-      const handleMontoInput = function(e){
+      const handleMonto = function(e){
         const input = e.target.closest('.pago-monto');
         if(!input) return;
         const idx = Number(input.dataset.idx);
-        const val = input.value.trim();
-        const hasExtra = val.includes('+') || val.includes('pendiente') || val.includes('premium');
-        pagos[idx].cuota = val + (hasExtra || val.endsWith('€') ? '' : '€');
+        const val = parseInt(input.value) || 0;
+        const clean = Math.max(0, Math.min(CUOTA_NORMAL, val));
+        pagos[idx].cuota = clean + '€';
         savePagos(); dirty = true;
+        // Actualizar campo debe sin re-renderizar
+        const row = input.closest('.player-row');
+        const debeInput = row.querySelector('.pago-debe');
+        if(debeInput) debeInput.value = CUOTA_NORMAL - clean;
         updatePagosSummary();
       };
-      listaPagados.oninput = listaPendientes.oninput = handleMontoInput;
+      listaPagados.oninput = listaPendientes.oninput = handleMonto;
     }
 
     updatePagosSummary();
