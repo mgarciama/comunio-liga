@@ -434,6 +434,7 @@
   .admin-active .admin-only{ display:inline-block; }
   .save-btn{ display:none; font-family:'JetBrains Mono',monospace; font-size:11px; background:var(--amber); color:var(--navy); border:none; padding:4px 12px; border-radius:4px; cursor:pointer; font-weight:700; }
   .admin-active .save-btn{ display:inline-block; }
+.player-row .amount .det{ display:block; font-size:11px; color:var(--amber-dim); margin-top:2px; }
 </style>
 </head>
 <body>
@@ -448,6 +449,9 @@
       <li><a href="#jornadas">Jornadas</a></li>
       <li><a href="#clasificacion">Clasificación</a></li>
       <li><a href="#pagos">Pagos</a></li>
+      <li><a href="#" id="login-trigger" style="color:var(--amber-dim);">👤 Admin</a></li>
+      <li class="admin-only"><a href="#" id="logout-trigger" style="color:var(--red);">Salir</a></li>
+      <li class="admin-only"><a href="#" id="save-trigger" style="color:var(--amber);">💾 Guardar</a></li>
     </ul>
     <button class="nav-toggle" aria-label="Menú">☰</button>
   </div>
@@ -767,11 +771,7 @@
 <footer>
   <div class="wrap">
     <div class="brand"><span class="dot"></span>El mundo para-lelo</div>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <button class="save-btn" id="save-btn" title="Publicar cambios en el servidor">💾 PUBLICAR</button>
-      <p>Temporada 26/27 · 14 jugadores · 38 jornadas</p>
-      <button class="login-trigger" id="login-trigger">🔒 Admin</button>
-    </div>
+    <p>Temporada 26/27 · 14 jugadores · 38 jornadas</p>
   </div>
 </footer>
 
@@ -786,38 +786,75 @@
   </div>
 </div>
 
+<div class="login-modal" id="warn-modal">
+  <div class="login-box" style="text-align:center;">
+    <h3>⚠ Cambios sin guardar</h3>
+    <p>Si sales ahora perderás los cambios. ¿Quieres salir sin guardar?</p>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn" id="warn-continue" style="background:var(--red);">Salir sin guardar</button>
+      <button class="btn" id="warn-cancel" style="background:var(--line-strong);">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // --- Auth ---
-  const ADMIN_USER = '@admin';
-  const ADMIN_PASS = 'Europa001@';
-  const REPO = 'mgarciama/comunio-liga';
-
+  const ADMIN_USER = '@admin', ADMIN_PASS = 'Europa001@', REPO = 'mgarciama/comunio-liga';
   let isAdmin = sessionStorage.getItem('comunio_admin') === '1';
+  let dirty = false; // cambios sin guardar
 
   function updateAdminUI(){
     document.body.classList.toggle('admin-active', isAdmin);
-    document.getElementById('login-trigger').textContent = isAdmin ? '👑 Admin' : '🔒 Admin';
+    const lt = document.getElementById('login-trigger');
+    if(isAdmin){
+      lt.textContent = '👑 Admin'; lt.style.color = 'var(--amber)';
+    } else {
+      lt.textContent = '👤 Admin'; lt.style.color = 'var(--amber-dim)';
+    }
   }
   updateAdminUI();
 
-  document.getElementById('login-trigger').addEventListener('click', () => {
-    if(isAdmin){ isAdmin = false; sessionStorage.removeItem('comunio_admin'); updateAdminUI(); renderAll(); return; }
+  // Login trigger
+  document.getElementById('login-trigger').addEventListener('click', e => {
+    e.preventDefault();
+    if(isAdmin) return;
     document.getElementById('login-modal').classList.add('open');
   });
-  document.getElementById('login-modal').addEventListener('click', function(e){
-    if(e.target === this) this.classList.remove('open');
+
+  // Logout trigger
+  document.getElementById('logout-trigger').addEventListener('click', e => {
+    e.preventDefault();
+    if(dirty){ document.getElementById('warn-modal').classList.add('open'); return; }
+    doLogout();
   });
+  document.getElementById('warn-cancel').addEventListener('click', () => document.getElementById('warn-modal').classList.remove('open'));
+  document.getElementById('warn-continue').addEventListener('click', () => {
+    document.getElementById('warn-modal').classList.remove('open');
+    doLogout();
+  });
+
+  function doLogout(){
+    isAdmin = false; sessionStorage.removeItem('comunio_admin'); dirty = false;
+    updateAdminUI(); renderAll();
+  }
+
+  // Save trigger
+  document.getElementById('save-trigger').addEventListener('click', e => {
+    e.preventDefault();
+    publicarCambios();
+  });
+
+  // Login modal
+  document.getElementById('login-modal').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
+  document.getElementById('warn-modal').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
   document.getElementById('login-btn').addEventListener('click', () => {
-    const u = document.getElementById('login-user').value;
-    const p = document.getElementById('login-pass').value;
+    const u = document.getElementById('login-user').value, p = document.getElementById('login-pass').value;
     if(u === ADMIN_USER && p === ADMIN_PASS){
-      isAdmin = true; sessionStorage.setItem('comunio_admin', '1');
+      isAdmin = true; sessionStorage.setItem('comunio_admin', '1'); dirty = false;
       document.getElementById('login-modal').classList.remove('open');
-      document.getElementById('login-user').value = '';
-      document.getElementById('login-pass').value = '';
+      document.getElementById('login-user').value = ''; document.getElementById('login-pass').value = '';
       document.getElementById('login-err').style.display = 'none';
-      updateAdminUI();
-      renderAll();
+      updateAdminUI(); renderAll();
     } else {
       document.getElementById('login-err').style.display = 'block';
     }
@@ -836,55 +873,31 @@
       if(!token) return false;
       localStorage.setItem('comunio_gh_token', token);
     }
-
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2))));
     const url = `https://api.github.com/repos/${REPO}/contents/${path}`;
-
-    // Get current sha
     let sha = null;
-    try{
-      const res = await fetch(url, { headers: { Authorization: 'Bearer '+token } });
-      if(res.ok){ const d = await res.json(); sha = d.sha; }
-    }catch(e){}
-
-    const body = { message: 'Update ' + path, content: encoded };
-    if(sha) body.sha = sha;
-
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: { Authorization: 'Bearer '+token, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    if(!res.ok){
-      const e = await res.json();
-      alert('Error: '+ (e.message || res.status));
-      if(res.status === 401){ localStorage.removeItem('comunio_gh_token'); }
-      return false;
-    }
+    try{ const r = await fetch(url, { headers: { Authorization: 'Bearer '+token } }); if(r.ok) sha = (await r.json()).sha; }catch(e){}
+    const body = { message: 'Update ' + path, content: encoded }; if(sha) body.sha = sha;
+    const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer '+token, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if(!res.ok){ const e = await res.json(); alert('Error: '+ (e.message || res.status)); if(res.status === 401) localStorage.removeItem('comunio_gh_token'); return false; }
     return true;
   }
 
   async function publicarCambios(){
-    const btn = document.getElementById('save-btn');
+    const btn = document.getElementById('save-trigger');
     btn.textContent = '⏳...';
     const ok1 = await ghSave('jornadas-data.json', ranks);
     const ok2 = await ghSave('pagos-data.json', pagos);
-    btn.textContent = (ok1 && ok2) ? '✅' : '❌';
-    setTimeout(() => { btn.textContent = '💾 PUBLICAR'; }, 2500);
+    btn.textContent = (ok1 && ok2) ? '✅ Guardado' : '❌ Error';
+    if(ok1 && ok2) dirty = false;
+    setTimeout(() => { btn.textContent = '💾 Guardar'; }, 2500);
   }
 
-  document.getElementById('save-btn').addEventListener('click', publicarCambios);
-
-  // Cargar datos desde el repo (raw) si están disponibles
   async function loadFromRepo(path){
-    try{
-      const res = await fetch(`https://raw.githubusercontent.com/${REPO}/main/${path}`);
-      if(!res.ok) return null;
-      return await res.json();
-    }catch{ return null; }
+    try{ const r = await fetch(`https://raw.githubusercontent.com/${REPO}/main/${path}`); if(!r.ok) return null; return await r.json(); }catch{ return null; }
   }
 
-  // Datos base de jugadores y cuotas (rellenar/editar aqui cuando avance la temporada)
+  // Datos base
 
   // --- Menú móvil ---
   document.querySelector('.nav-toggle').addEventListener('click', function(){
@@ -1041,7 +1054,7 @@
         ranks[p][j] = val;
         input.classList.remove('r1', 'r2');
         if(val === 1) input.classList.add('r1'); else if(val === 2 || val === 3) input.classList.add('r2');
-        saveRanks();
+        saveRanks(); dirty = true;
         document.getElementById('jornada-primas-' + p).textContent = computePrimas(p) + '€';
         updateBanner();
       };
@@ -1068,7 +1081,7 @@
   try{ const raw = localStorage.getItem(PAGOS_KEY); if(raw) pagos = JSON.parse(raw); }catch(e){}
   function savePagos(){ try{ localStorage.setItem(PAGOS_KEY, JSON.stringify(pagos)); }catch(e){} }
 
-  function renderPagos(){
+  function updatePagosSummary(){
     const pagadosList = pagos.filter(j => j.pagado);
     const pendientesList = pagos.filter(j => !j.pagado);
     const recaudado = pagos.reduce((sum, j) => {
@@ -1079,13 +1092,14 @@
     }, 0);
     const pct = Math.min(100, Math.round((recaudado / BOTE_ESPERADO) * 100));
     const resto = BOTE_ESPERADO - recaudado;
-
     document.getElementById('pg-pagados').textContent = pagadosList.length+'/'+pagos.length;
     document.getElementById('pg-pendientes').textContent = pendientesList.length;
     document.getElementById('pg-recaudado').innerHTML = recaudado+'€ <span style="font-size:18px;color:var(--chalk-dim)">/ '+BOTE_ESPERADO+'€</span>';
     document.getElementById('pg-restante').textContent = (resto > 0 ? resto+'€ por cobrar' : '¡Completado!');
     document.getElementById('pg-fill').style.width = pct+'%';
+  }
 
+  function renderPagos(){
     const listaPagados = document.getElementById('lista-pagados');
     const listaPendientes = document.getElementById('lista-pendientes');
     listaPagados.innerHTML = '';
@@ -1094,36 +1108,55 @@
     pagos.forEach((j, idx) => {
       const row = document.createElement('div');
       row.className = 'player-row';
-      const monto = j.cuota.replace('€','').trim();
+      const pagado = parseInt(j.cuota) || 0;
+      const debe = CUOTA_NORMAL - pagado;
+      const pct = Math.round((pagado / CUOTA_NORMAL) * 100);
+
       if(isAdmin){
         row.innerHTML = `
           <span class="dot"></span>
           <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
-          <input class="pago-monto" data-idx="${idx}" value="${monto}" style="width:90px; background:transparent; border:none; border-bottom:1px dashed var(--line-strong); color:var(--chalk-dim); font-family:'JetBrains Mono',monospace; text-align:right; font-size:13px; outline:none;">
-          <span style="color:var(--chalk-dim)">€</span>
-          <button class="pago-toggle" data-idx="${idx}" style="background:var(--amber-dim); border:none; color:var(--navy); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; cursor:pointer;">${j.pagado ? 'PAGADO' : 'NO PAGADO'}</button>
+          <input class="pago-monto" data-idx="${idx}" value="${j.cuota.replace('€','').trim()}" style="width:85px; background:transparent; border:none; border-bottom:1px dashed var(--line-strong); color:var(--chalk-dim); font-family:'JetBrains Mono',monospace; text-align:right; font-size:13px; outline:none;">
+          <button class="pago-toggle" data-idx="${idx}" style="background:var(--amber-dim); border:none; color:var(--navy); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; cursor:pointer; white-space:nowrap;">${j.pagado ? 'PAGADO' : 'NO PAGADO'}</button>
         `;
       } else {
+        const pctColor = j.pagado ? 'var(--amber)' : (pagado > 0 ? 'var(--amber-dim)' : 'var(--line-strong)');
         row.innerHTML = `
           <span class="dot"></span>
           <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
-          <span class="amount">${j.cuota}</span>
+          <span class="amount" style="text-align:right;">
+            <span style="font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700;">${j.cuota}</span>
+            <span class="det">${j.pagado ? '✅ Completado' : (pagado > 0 ? 'Pagado: '+pagado+'€ · Debe: '+debe+'€' : 'Debe: '+debe+'€')}</span>
+          </span>
         `;
       }
       (j.pagado ? listaPagados : listaPendientes).appendChild(row);
     });
 
     if(isAdmin){
-      document.querySelectorAll('.pago-toggle').forEach(btn => btn.addEventListener('click', function(){
-        const idx = Number(this.dataset.idx); pagos[idx].pagado = !pagos[idx].pagado; savePagos(); renderPagos();
-      }));
-      document.querySelectorAll('.pago-monto').forEach(input => input.addEventListener('input', function(){
-        const idx = Number(this.dataset.idx); const val = this.value.trim();
+      // Usar event delegation en los contenedores para no perder foco
+      listaPagados.onclick = listaPendientes.onclick = function(e){
+        const btn = e.target.closest('.pago-toggle');
+        if(!btn) return;
+        const idx = Number(btn.dataset.idx);
+        pagos[idx].pagado = !pagos[idx].pagado;
+        savePagos(); dirty = true;
+        renderPagos(); // necesario para mover entre columnas
+      };
+      const handleMontoInput = function(e){
+        const input = e.target.closest('.pago-monto');
+        if(!input) return;
+        const idx = Number(input.dataset.idx);
+        const val = input.value.trim();
         const hasExtra = val.includes('+') || val.includes('pendiente') || val.includes('premium');
         pagos[idx].cuota = val + (hasExtra || val.endsWith('€') ? '' : '€');
-        savePagos(); renderPagos();
-      }));
+        savePagos(); dirty = true;
+        updatePagosSummary();
+      };
+      listaPagados.oninput = listaPendientes.oninput = handleMontoInput;
     }
+
+    updatePagosSummary();
   }
 
   renderPagos();
