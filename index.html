@@ -432,6 +432,8 @@
   .admin-active .admin-badge{ display:inline; }
   .admin-only{ display:none; }
   .admin-active .admin-only{ display:inline-block; }
+  .save-btn{ display:none; font-family:'JetBrains Mono',monospace; font-size:11px; background:var(--amber); color:var(--navy); border:none; padding:4px 12px; border-radius:4px; cursor:pointer; font-weight:700; }
+  .admin-active .save-btn{ display:inline-block; }
 </style>
 </head>
 <body>
@@ -766,6 +768,7 @@
   <div class="wrap">
     <div class="brand"><span class="dot"></span>El mundo para-lelo</div>
     <div style="display:flex;align-items:center;gap:12px;">
+      <button class="save-btn" id="save-btn" title="Publicar cambios en el servidor">💾 PUBLICAR</button>
       <p>Temporada 26/27 · 14 jugadores · 38 jornadas</p>
       <button class="login-trigger" id="login-trigger">🔒 Admin</button>
     </div>
@@ -787,6 +790,7 @@
   // --- Auth ---
   const ADMIN_USER = '@admin';
   const ADMIN_PASS = 'Europa001@';
+  const REPO = 'mgarciama/comunio-liga';
 
   let isAdmin = sessionStorage.getItem('comunio_admin') === '1';
 
@@ -821,6 +825,64 @@
   document.querySelectorAll('#login-user,#login-pass').forEach(el => {
     el.addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('login-btn').click(); });
   });
+
+  // --- GitHub sync ---
+  function getToken(){ return localStorage.getItem('comunio_gh_token'); }
+
+  async function ghSave(path, content){
+    let token = getToken();
+    if(!token){
+      token = prompt('🔐 GitHub Personal Access Token:\n\nCrealo en GitHub → Settings → Developer settings → Tokens (classic) → Generate\nMarca el scope "repo" y copia el token aquí:');
+      if(!token) return false;
+      localStorage.setItem('comunio_gh_token', token);
+    }
+
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2))));
+    const url = `https://api.github.com/repos/${REPO}/contents/${path}`;
+
+    // Get current sha
+    let sha = null;
+    try{
+      const res = await fetch(url, { headers: { Authorization: 'Bearer '+token } });
+      if(res.ok){ const d = await res.json(); sha = d.sha; }
+    }catch(e){}
+
+    const body = { message: 'Update ' + path, content: encoded };
+    if(sha) body.sha = sha;
+
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: { Authorization: 'Bearer '+token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if(!res.ok){
+      const e = await res.json();
+      alert('Error: '+ (e.message || res.status));
+      if(res.status === 401){ localStorage.removeItem('comunio_gh_token'); }
+      return false;
+    }
+    return true;
+  }
+
+  async function publicarCambios(){
+    const btn = document.getElementById('save-btn');
+    btn.textContent = '⏳...';
+    const ok1 = await ghSave('jornadas-data.json', ranks);
+    const ok2 = await ghSave('pagos-data.json', pagos);
+    btn.textContent = (ok1 && ok2) ? '✅' : '❌';
+    setTimeout(() => { btn.textContent = '💾 PUBLICAR'; }, 2500);
+  }
+
+  document.getElementById('save-btn').addEventListener('click', publicarCambios);
+
+  // Cargar datos desde el repo (raw) si están disponibles
+  async function loadFromRepo(path){
+    try{
+      const res = await fetch(`https://raw.githubusercontent.com/${REPO}/main/${path}`);
+      if(!res.ok) return null;
+      return await res.json();
+    }catch{ return null; }
+  }
 
   // Datos base de jugadores y cuotas (rellenar/editar aqui cuando avance la temporada)
 
@@ -867,6 +929,21 @@
   }
 
   let ranks = loadRanks();
+
+  // Intentar cargar desde el repo (fuente compartida)
+  (async function(){
+    const repoRanks = await loadFromRepo('jornadas-data.json');
+    if(repoRanks && Array.isArray(repoRanks) && repoRanks.length === PLAYERS.length){
+      ranks = repoRanks;
+      saveRanks(); // cache local
+    }
+    const repoPagos = await loadFromRepo('pagos-data.json');
+    if(repoPagos && Array.isArray(repoPagos) && repoPagos.length === pagos.length){
+      pagos = repoPagos;
+      savePagos();
+    }
+    renderAll();
+  })();
 
   function computePrimas(i){
     let total = 0;
