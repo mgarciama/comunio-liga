@@ -414,13 +414,33 @@
 
   .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
   .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- LOGIN ---------- */
+  .login-trigger{ background:none; border:1px solid var(--line-strong); color:var(--chalk-dim); font-size:12px; padding:4px 10px; border-radius:4px; cursor:pointer; font-family:'Inter',sans-serif; }
+  .login-trigger:hover{ color:var(--amber); border-color:var(--amber-dim); }
+  .login-modal{ display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; }
+  .login-modal.open{ display:flex; }
+  .login-box{ background:var(--navy); border:1px solid var(--line-strong); border-radius:8px; padding:36px; width:320px; max-width:90vw; }
+  .login-box h3{ font-family:'Bebas Neue',sans-serif; font-size:24px; margin-bottom:6px; }
+  .login-box p{ font-size:13px; color:var(--chalk-dim); margin-bottom:20px; }
+  .login-box input{ width:100%; background:var(--pitch-dark); border:1px solid var(--line-strong); color:var(--chalk); padding:10px 14px; border-radius:5px; font-size:14px; margin-bottom:12px; font-family:'JetBrains Mono',monospace; outline:none; }
+  .login-box input:focus{ border-color:var(--amber); }
+  .login-box .btn{ width:100%; background:var(--amber); color:var(--navy); border:none; padding:10px; border-radius:5px; font-weight:700; font-size:14px; cursor:pointer; font-family:'Inter',sans-serif; }
+  .login-box .btn:hover{ background:var(--amber-dim); }
+  .login-box .err{ font-size:12px; color:var(--red); margin-top:8px; display:none; }
+  .admin-badge{ display:none; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--amber-dim); border:1px solid var(--amber-dim); padding:1px 6px; border-radius:100px; }
+  .admin-active .admin-badge{ display:inline; }
+  .admin-only{ display:none; }
+  .admin-active .admin-only{ display:inline-block; }
+  .save-btn{ display:none; font-family:'JetBrains Mono',monospace; font-size:11px; background:var(--amber); color:var(--navy); border:none; padding:4px 12px; border-radius:4px; cursor:pointer; font-weight:700; }
+  .admin-active .save-btn{ display:inline-block; }
 </style>
 </head>
 <body>
 
 <nav>
   <div class="wrap">
-    <div class="brand"><span class="dot"></span>El mundo para-lelo</div>
+    <div class="brand"><span class="dot"></span>El mundo para-lelo <span class="admin-badge">ADMIN</span></div>
     <ul>
       <li><a href="#bote">El bote</a></li>
       <li><a href="#reglas">Reglas</a></li>
@@ -429,8 +449,8 @@
       <li><a href="#clasificacion">Clasificación</a></li>
       <li><a href="#pagos">Pagos</a></li>
     </ul>
-      <button class="nav-toggle" aria-label="Menú">☰</button>
-    </div>
+    <button class="nav-toggle" aria-label="Menú">☰</button>
+  </div>
 </nav>
 
 <header class="hero">
@@ -747,11 +767,102 @@
 <footer>
   <div class="wrap">
     <div class="brand"><span class="dot"></span>El mundo para-lelo</div>
-    <p>Temporada 26/27 · 14 jugadores · 38 jornadas</p>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="save-btn" id="save-btn" title="Guardar cambios en el servidor">💾 GUARDAR</button>
+      <p>Temporada 26/27 · 14 jugadores · 38 jornadas</p>
+      <button class="login-trigger" id="login-trigger">🔒 Admin</button>
+    </div>
   </div>
 </footer>
 
+<div class="login-modal" id="login-modal">
+  <div class="login-box">
+    <h3>Acceso Admin</h3>
+    <p>Introduce tus credenciales para editar.</p>
+    <input type="text" id="login-user" placeholder="Usuario">
+    <input type="password" id="login-pass" placeholder="Contraseña">
+    <button class="btn" id="login-btn">Entrar</button>
+    <p class="err" id="login-err">Credenciales incorrectas</p>
+  </div>
+</div>
+
 <script>
+  // --- Auth ---
+  const ADMIN_USER = '@admin';
+  const ADMIN_PASS = 'Europa001@';
+  const GITHUB_REPO = 'mgarciama/comunio-liga';
+
+  let isAdmin = sessionStorage.getItem('comunio_admin') === '1';
+
+  function updateAdminUI(){
+    document.body.classList.toggle('admin-active', isAdmin);
+    document.getElementById('login-trigger').textContent = isAdmin ? '👑 Admin' : '🔒 Admin';
+  }
+  updateAdminUI();
+
+  document.getElementById('login-trigger').addEventListener('click', () => {
+    if(isAdmin){ isAdmin = false; sessionStorage.removeItem('comunio_admin'); updateAdminUI(); renderAll(); return; }
+    document.getElementById('login-modal').classList.add('open');
+  });
+  document.getElementById('login-modal').addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('open');
+  });
+  document.getElementById('login-btn').addEventListener('click', () => {
+    const u = document.getElementById('login-user').value;
+    const p = document.getElementById('login-pass').value;
+    if(u === ADMIN_USER && p === ADMIN_PASS){
+      isAdmin = true; sessionStorage.setItem('comunio_admin', '1');
+      document.getElementById('login-modal').classList.remove('open');
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-err').style.display = 'none';
+      updateAdminUI();
+      renderAll();
+    } else {
+      document.getElementById('login-err').style.display = 'block';
+    }
+  });
+  document.querySelectorAll('#login-user,#login-pass').forEach(el => {
+    el.addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('login-btn').click(); });
+  });
+
+  // --- GitHub API ---
+  function getToken(){ return localStorage.getItem('comunio_gh_token'); }
+
+  async function ghGet(path){
+    const t = getToken();
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`, {
+      headers: t ? { Authorization: 'Bearer ' + t } : {}
+    });
+    if(!res.ok) return null;
+    const data = await res.json();
+    try{ return { sha: data.sha, content: JSON.parse(atob(data.content)) }; }
+    catch{ return null; }
+  }
+
+  async function ghPut(path, content, sha){
+    const t = getToken();
+    if(!t){ alert('⚠ Configura tu token de GitHub en Settings → Developer settings → Personal access tokens → repo scope. Luego pégalo aquí.'); const token = prompt('Token de GitHub:'); if(token){ localStorage.setItem('comunio_gh_token', token); return ghPut(path, content, sha); } return false; }
+    const body = { message: 'Update data', content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))), sha };
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`, {
+      method: 'PUT', headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    if(!res.ok){ const e = await res.json(); alert('Error al guardar: ' + (e.message || res.status)); return false; }
+    return true;
+  }
+
+  async function saveToGitHub(){
+    const saveBtn = document.getElementById('save-btn');
+    saveBtn.textContent = '⏳ Guardando...';
+    const jornadasOk = await ghPut('jornadas-data.json', ranks, null);
+    const pagosOk = await ghPut('pagos-data.json', pagos, null);
+    saveBtn.textContent = (jornadasOk && pagosOk) ? '✅ Guardado' : '❌ Error';
+    setTimeout(() => { saveBtn.textContent = '💾 GUARDAR'; }, 2000);
+  }
+  document.getElementById('save-btn').addEventListener('click', saveToGitHub);
+
+  // Datos base de jugadores y cuotas (rellenar/editar aqui cuando avance la temporada)
+
   // --- Menú móvil ---
   document.querySelector('.nav-toggle').addEventListener('click', function(){
     document.querySelector('nav ul').classList.toggle('open');
@@ -760,7 +871,6 @@
     document.querySelector('nav ul').classList.remove('open');
   }));
 
-  // Datos base de jugadores y cuotas (rellenar/editar aqui cuando avance la temporada)
   const PLAYERS = [
     {nombre:"Jose Negro",  equipo:"El Maki Roldan",            pagado:true,  cuota:"40€"},
     {nombre:"Harryson",    equipo:"Gryffindor",                pagado:true,  cuota:"40€"},
@@ -846,45 +956,60 @@
     .catch(() => renderJornadas());
 
   function renderJornadas(){
-  PLAYERS.forEach((p, i) => {
-    const tr = document.createElement('tr');
+    jornadasBody.innerHTML = '';
+    PLAYERS.forEach((p, i) => {
+      const tr = document.createElement('tr');
 
-    const tdName = document.createElement('td');
-    tdName.className = 'col-jugador';
-    const lookup = biwengerIconMap[p.equipo.toLowerCase()] || p.equipo.toLowerCase();
-    const icon = biwengerIcons[lookup];
-    const iconHtml = icon ? `<img src="${icon}" alt="" style="width:18px;height:18px;border-radius:50%;vertical-align:middle;margin-right:6px;object-fit:cover;">` : '';
-    tdName.innerHTML = `${iconHtml}${p.equipo}<span class="mgr">${p.nombre}</span>`;
-    tr.appendChild(tdName);
+      const tdName = document.createElement('td');
+      tdName.className = 'col-jugador';
+      const lookup = biwengerIconMap[p.equipo.toLowerCase()] || p.equipo.toLowerCase();
+      const icon = biwengerIcons[lookup];
+      const iconHtml = icon ? `<img src="${icon}" alt="" style="width:18px;height:18px;border-radius:50%;vertical-align:middle;margin-right:6px;object-fit:cover;">` : '';
+      tdName.innerHTML = `${iconHtml}${p.equipo}<span class="mgr">${p.nombre}</span>`;
+      tr.appendChild(tdName);
 
-    for(let j = 0; j < NUM_JORNADAS; j++){
-      const td = document.createElement('td');
-      const span = document.createElement('span');
-      span.className = 'jornada-input';
-      const val = ranks[i][j];
-      if(val !== null && val !== undefined){
-        span.textContent = val;
-        if(val === 1) span.classList.add('r1');
-        else if(val === 2 || val === 3) span.classList.add('r2');
-      } else {
-        span.textContent = '—';
-        span.style.color = 'var(--line-strong)';
+      for(let j = 0; j < NUM_JORNADAS; j++){
+        const td = document.createElement('td');
+        if(isAdmin){
+          const input = document.createElement('input');
+          input.type = 'number'; input.min = 1; input.max = 14;
+          input.className = 'jornada-input'; input.dataset.p = i; input.dataset.j = j;
+          const val = ranks[i][j];
+          if(val !== null && val !== undefined){ input.value = val; if(val === 1) input.classList.add('r1'); else if(val === 2 || val === 3) input.classList.add('r2'); }
+          td.appendChild(input);
+        } else {
+          const span = document.createElement('span');
+          span.className = 'jornada-input';
+          const val = ranks[i][j];
+          if(val !== null && val !== undefined){ span.textContent = val; if(val === 1) span.classList.add('r1'); else if(val === 2 || val === 3) span.classList.add('r2'); }
+          else { span.textContent = '—'; span.style.color = 'var(--line-strong)'; }
+          td.appendChild(span);
+        }
+        tr.appendChild(td);
       }
-      td.appendChild(span);
-      tr.appendChild(td);
+
+      const tdPrimas = document.createElement('td');
+      tdPrimas.className = 'col-primas'; tdPrimas.id = 'jornada-primas-' + i;
+      tdPrimas.textContent = computePrimas(i) + '€';
+      tr.appendChild(tdPrimas);
+      jornadasBody.appendChild(tr);
+    });
+    if(isAdmin){
+      jornadasBody.oninput = function(e){
+        const input = e.target;
+        if(!input.classList.contains('jornada-input')) return;
+        const p = Number(input.dataset.p), j = Number(input.dataset.j);
+        let val = input.value === '' ? null : Math.max(1, Math.min(14, Math.round(Number(input.value))));
+        ranks[p][j] = val;
+        input.classList.remove('r1', 'r2');
+        if(val === 1) input.classList.add('r1'); else if(val === 2 || val === 3) input.classList.add('r2');
+        saveRanks();
+        document.getElementById('jornada-primas-' + p).textContent = computePrimas(p) + '€';
+        updateBanner();
+      };
     }
-
-    const tdPrimas = document.createElement('td');
-    tdPrimas.className = 'col-primas';
-    tdPrimas.id = 'jornada-primas-' + i;
-    tdPrimas.textContent = computePrimas(i) + '€';
-    tr.appendChild(tdPrimas);
-
-    jornadasBody.appendChild(tr);
-  });
+    updateBanner();
   }
-
-  function updateBanner(){
     const actual = computeJornadaActual();
     document.getElementById('jb-actual').innerHTML = actual + ' <span>/ 38</span>';
     document.getElementById('jb-label').textContent = actual === 0 ? 'Aún sin empezar' : 'Jornada ' + actual + ' jugada';
@@ -901,6 +1026,7 @@
 
   let pagos = PLAYERS.map(p => ({...p}));
   try{ const raw = localStorage.getItem(PAGOS_KEY); if(raw) pagos = JSON.parse(raw); }catch(e){}
+  function savePagos(){ try{ localStorage.setItem(PAGOS_KEY, JSON.stringify(pagos)); }catch(e){} }
 
   function renderPagos(){
     const pagadosList = pagos.filter(j => j.pagado);
@@ -925,19 +1051,44 @@
     listaPagados.innerHTML = '';
     listaPendientes.innerHTML = '';
 
-    pagos.forEach(j => {
+    pagos.forEach((j, idx) => {
       const row = document.createElement('div');
       row.className = 'player-row';
-      row.innerHTML = `
-        <span class="dot"></span>
-        <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
-        <span class="amount">${j.cuota}</span>
-      `;
+      const monto = j.cuota.replace('€','').trim();
+      if(isAdmin){
+        row.innerHTML = `
+          <span class="dot"></span>
+          <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
+          <input class="pago-monto" data-idx="${idx}" value="${monto}" style="width:90px; background:transparent; border:none; border-bottom:1px dashed var(--line-strong); color:var(--chalk-dim); font-family:'JetBrains Mono',monospace; text-align:right; font-size:13px; outline:none;">
+          <span style="color:var(--chalk-dim)">€</span>
+          <button class="pago-toggle" data-idx="${idx}" style="background:var(--amber-dim); border:none; color:var(--navy); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; cursor:pointer;">${j.pagado ? 'PAGADO' : 'NO PAGADO'}</button>
+        `;
+      } else {
+        row.innerHTML = `
+          <span class="dot"></span>
+          <span class="who"><span class="name">${j.nombre}</span><br><span class="team">${j.equipo}</span></span>
+          <span class="amount">${j.cuota}</span>
+        `;
+      }
       (j.pagado ? listaPagados : listaPendientes).appendChild(row);
     });
+
+    if(isAdmin){
+      document.querySelectorAll('.pago-toggle').forEach(btn => btn.addEventListener('click', function(){
+        const idx = Number(this.dataset.idx); pagos[idx].pagado = !pagos[idx].pagado; savePagos(); renderPagos();
+      }));
+      document.querySelectorAll('.pago-monto').forEach(input => input.addEventListener('input', function(){
+        const idx = Number(this.dataset.idx); const val = this.value.trim();
+        const hasExtra = val.includes('+') || val.includes('pendiente') || val.includes('premium');
+        pagos[idx].cuota = val + (hasExtra || val.endsWith('€') ? '' : '€');
+        savePagos(); renderPagos();
+      }));
+    }
   }
 
   renderPagos();
+
+  function renderAll(){ renderJornadas(); renderPagos(); }
 
   // --- Datos Biwenger (clasificación real por puntos) ---
   async function loadBiwengerData() {
