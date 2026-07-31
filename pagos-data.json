@@ -15,7 +15,7 @@
     "nombre": "Tary",
     "equipo": "Los Carrinton FC",
     "pagado": false,
-    "cuota": "10€"
+    "cuota": "10 + pendiente"
   },
   {
     "nombre": "Gaspar",
@@ -33,7 +33,7 @@
     "nombre": "Charli",
     "equipo": "Fermux",
     "pagado": false,
-    "cuota": "20€"
+    "cuota": "20 + pendiente"
   },
   {
     "nombre": "Manolillo",
