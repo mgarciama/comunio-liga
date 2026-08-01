@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-31T23:17:11.509Z",
+  "updatedAt": "2026-08-01T09:49:51.287Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -9,17 +9,17 @@
   "standings": [
     {
       "position": 1,
-      "name": "Nolillo2️⃣2️⃣",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/2213276.png",
-      "id": 2213276
-    },
-    {
-      "position": 2,
       "name": "Oportopor",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/2213275.png",
       "id": 2213275
+    },
+    {
+      "position": 2,
+      "name": "Nolillo2️⃣2️⃣",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/2213276.png",
+      "id": 2213276
     },
     {
       "position": 3,
@@ -51,31 +51,31 @@
     },
     {
       "position": 7,
-      "name": "Luis de la Fuente",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/13946856.png",
-      "id": 13946856
-    },
-    {
-      "position": 8,
       "name": "Turbanera",
       "points": 0,
       "icon": "https://cdn.biwenger.com/icons/37.png",
       "id": 2216723
     },
     {
-      "position": 9,
-      "name": "Sonámbulos Hermanos UF",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/12595114.png",
-      "id": 12595114
-    },
-    {
-      "position": 10,
+      "position": 8,
       "name": "Bayer de Los Caídos FC",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13955595.png",
       "id": 13955595
+    },
+    {
+      "position": 9,
+      "name": "Luis de la Fuente",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/13946856.png",
+      "id": 13946856
+    },
+    {
+      "position": 10,
+      "name": "Sonámbulos Hermanos UF",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/12595114.png",
+      "id": 12595114
     },
     {
       "position": 11,
@@ -93,17 +93,17 @@
     },
     {
       "position": 13,
-      "name": "Gryffindor",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/2214626.png?v=38",
-      "id": 2214626
-    },
-    {
-      "position": 14,
       "name": "MouTeam",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13774004.png",
       "id": 13975535
+    },
+    {
+      "position": 14,
+      "name": "Gryffindor",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/2214626.png?v=38",
+      "id": 2214626
     }
   ]
 }
