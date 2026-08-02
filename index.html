@@ -151,7 +151,9 @@
   .stat .l{ font-size:12px; color:var(--chalk-dim); letter-spacing:0.08em; text-transform:uppercase; margin-top:2px;}
 
   /* ---------- SECTION HEADERS ---------- */
-  section{ padding:100px 0; border-bottom:1px solid var(--line); }
+  section{ display:none; padding:100px 0; border-bottom:1px solid var(--line); }
+  section.active{ display:block; }
+  #inicio{ display:block; padding:0; border:none; }
   .sec-head{ margin-bottom:52px; max-width:640px; }
   .sec-head .tag{
     font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--amber);
@@ -443,6 +445,7 @@
   <div class="wrap">
     <div class="brand"><span class="dot"></span>El mundo para-lelo <span class="admin-badge">ADMIN</span></div>
     <ul>
+      <li><a href="#inicio">Inicio</a></li>
       <li><a href="#bote">El bote</a></li>
       <li><a href="#reglas">Reglas</a></li>
       <li><a href="#normas">Normas</a></li>
@@ -457,6 +460,7 @@
   </div>
 </nav>
 
+<section id="inicio" class="active">
 <header class="hero">
   <div class="wrap">
     <span class="eyebrow">Temporada 26/27 · 38 jornadas</span>
@@ -486,6 +490,7 @@
     </div>
   </div>
 </header>
+</section>
 
 <section id="bote">
   <div class="wrap">
@@ -889,9 +894,21 @@
   document.querySelector('.nav-toggle').addEventListener('click', function(){
     document.querySelector('nav ul').classList.toggle('open');
   });
-  document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', function(){
-    document.querySelector('nav ul').classList.remove('open');
-  }));
+  // Navegación entre secciones
+  document.querySelectorAll('nav a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if(!target) return;
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      target.classList.add('active');
+      // scroll suave hasta el top de la sección
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelector('nav ul').classList.remove('open');
+      // Re-trigger reveals
+      target.querySelectorAll('.reveal:not(.in)').forEach(el => el.classList.add('in'));
+    });
+  });
 
   const PLAYERS = [
     {nombre:"Jose Negro",  equipo:"El Maki Roldan",            pagado:true,  cuota:"40€"},
