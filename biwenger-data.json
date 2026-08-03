@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T17:25:21.183Z",
+  "updatedAt": "2026-08-03T08:52:10.707Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -44,17 +44,17 @@
     },
     {
       "position": 6,
+      "name": "Sonámbulos Hermanos UF",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/12595114.png",
+      "id": 12595114
+    },
+    {
+      "position": 7,
       "name": "Bayer de Los Caídos FC",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13955595.png",
       "id": 13955595
-    },
-    {
-      "position": 7,
-      "name": "la makina",
-      "points": 0,
-      "icon": "https://lh3.googleusercontent.com/a/AGNmyxZ9PpTff59PDqGLrbwYyHyB8cv7vujOzuCjRBO7=s300-c",
-      "id": 13949428
     },
     {
       "position": 8,
@@ -65,45 +65,45 @@
     },
     {
       "position": 9,
-      "name": "DIEGO ARMANDO MARADONA",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/13965613.png",
-      "id": 13965613
-    },
-    {
-      "position": 10,
       "name": "Turbanera",
       "points": 0,
       "icon": "https://cdn.biwenger.com/icons/37.png",
       "id": 2216723
     },
     {
-      "position": 11,
-      "name": "Sonámbulos Hermanos UF",
+      "position": 10,
+      "name": "la makina",
       "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/12595114.png",
-      "id": 12595114
+      "icon": "https://lh3.googleusercontent.com/a/AGNmyxZ9PpTff59PDqGLrbwYyHyB8cv7vujOzuCjRBO7=s300-c",
+      "id": 13949428
     },
     {
-      "position": 12,
+      "position": 11,
       "name": "el maki Roldan",
       "points": 0,
       "icon": "https://cdn.biwenger.com/icons/26.png",
       "id": 2213278
     },
     {
-      "position": 13,
+      "position": 12,
       "name": "MouTeam",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13774004.png",
       "id": 13975535
     },
     {
-      "position": 14,
+      "position": 13,
       "name": "Gryffindor",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/2214626.png?v=38",
       "id": 2214626
+    },
+    {
+      "position": 14,
+      "name": "DIEGO ARMANDO MARADONA",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/13965613.png",
+      "id": 13965613
     }
   ]
 }
