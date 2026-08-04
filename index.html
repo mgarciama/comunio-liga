@@ -916,22 +916,27 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
   }
 
   async function publicarCambios(){
-    const btns = [document.getElementById('save-trigger'), document.getElementById('save-btn-footer')];
+    const saveNav = document.getElementById('save-trigger');
+    const saveFooter = document.getElementById('save-btn-footer');
 
-    // Validar posiciones únicas por jornada (solo donde haya datos)
+    // Validar duplicados (aviso, no bloquea)
     for(let j = 0; j < NUM_JORNADAS; j++){
       const vals = ranks.map(row => row[j]).filter(v => v !== null && v !== undefined);
       if(vals.length < 2) continue;
-      const seen = new Set();
-      for(const v of vals){
-        if(seen.has(v)){ alert('⚠ Jornada '+(j+1)+': posición '+v+' repetida.'); return; }
-        seen.add(v);
-      }
+      const seen = new Set(), dupes = [];
+      for(const v of vals){ if(seen.has(v)) dupes.push(v); seen.add(v); }
+      if(dupes.length > 0 && !confirm('⚠ Jornada '+(j+1)+' tiene posiciones repetidas: '+[...new Set(dupes)].join(', ')+'\n\n¿Guardar de todas formas?')) return;
     }
 
-    btns.forEach(b => { if(b) b.textContent = '⏳...'; });
+    [saveNav, saveFooter].forEach(b => { if(b) b.textContent = '⏳...'; });
+
+    // Siempre guardar en localStorage primero
+    saveRanks();
+    savePagos();
+    dirty = false;
+
+    // Luego intentar publicar en servidor
     try {
-      console.log('📡 POST /api/save');
       const res = await fetch('/api/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -939,18 +944,15 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
       });
       const data = await res.json();
       if(res.ok && data.ok){
-        dirty = false;
-        btns.forEach(b => { if(b) b.textContent = '✅'; });
+        [saveNav, saveFooter].forEach(b => { if(b) b.textContent = '✅'; });
         setTimeout(() => { window.location.reload(); }, 800);
-      } else {
-        btns.forEach(b => { if(b) b.textContent = '❌'; });
-        alert('Error: ' + (data.error || 'Desconocido'));
+        return;
       }
-    } catch(e){
-      btns.forEach(b => { if(b) b.textContent = '❌'; });
-      alert('No se pudo conectar');
-    }
-    setTimeout(() => { btns.forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2500);
+      console.warn('API error:', data.error);
+    } catch(e){ console.warn('API offline:', e.message); }
+
+    [saveNav, saveFooter].forEach(b => { if(b) b.textContent = '💾'; });
+    setTimeout(() => { [saveNav, saveFooter].forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2000);
   }
 
   async function loadFromRepo(path){
