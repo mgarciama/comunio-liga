@@ -35,5 +35,6 @@ jobs:
             echo "No changes"
           else
             git commit -m "⬆ Update Biwenger standings"
+            git pull --rebase
             git push
           fi

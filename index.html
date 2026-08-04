@@ -918,26 +918,34 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
   async function publicarCambios(){
     const btn1 = document.getElementById('save-trigger');
     const btn2 = document.getElementById('save-btn-footer');
-    [btn1, btn2].forEach(b => { if(b) b.textContent = '⏳...'; });
 
+    // Guardar local primero (instantáneo)
     saveRanks();
     savePagos();
     dirty = false;
+    [btn1, btn2].forEach(b => { if(b) b.textContent = '⬆...'; });
 
+    // Intentar publicar en segundo plano con timeout
     try {
+      const ctrl = new AbortController();
+      const timeout = setTimeout(() => ctrl.abort(), 5000);
       const res = await fetch('/api/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jornadas: ranks, pagos })
+        body: JSON.stringify({ jornadas: ranks, pagos }),
+        signal: ctrl.signal
       });
+      clearTimeout(timeout);
       const data = await res.json();
-      if(!res.ok || !data.ok) throw new Error(data.error || 'Error ' + res.status);
-      [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; });
-      setTimeout(() => window.location.reload(), 500);
-      return;
+      if(res.ok && data.ok){
+        [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; });
+        setTimeout(() => window.location.reload(), 500);
+        return;
+      }
+      throw new Error(data.error || 'Error '+res.status);
     } catch(e){
       [btn1, btn2].forEach(b => { if(b) b.textContent = '💾'; });
-      alert('⚠ Solo guardado en este navegador.\n\n' + e.message + '\n\nVerifica que GITHUB_TOKEN esté configurado en Cloudflare → Settings → Variables de entorno → Functions.');
+      if(e.name !== 'AbortError') alert('⚠ Solo guardado localmente.\n\n' + e.message);
     }
     setTimeout(() => { [btn1, btn2].forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2000);
   }
