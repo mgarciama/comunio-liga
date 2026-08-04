@@ -916,19 +916,16 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
   }
 
   async function publicarCambios(){
-    console.log('💾 publicarCambios, dirty:', dirty);
     const btns = [document.getElementById('save-trigger'), document.getElementById('save-btn-footer')];
 
-    // Validar posiciones únicas por jornada
+    // Validar posiciones únicas por jornada (solo donde haya datos)
     for(let j = 0; j < NUM_JORNADAS; j++){
       const vals = ranks.map(row => row[j]).filter(v => v !== null && v !== undefined);
-      if(vals.length === 0) continue;
-      const dupes = vals.filter((v, i, a) => a.indexOf(v) !== i);
-      if(dupes.length > 0){
-        btns.forEach(b => { if(b) b.textContent = '❌'; });
-        alert('⚠ Jornada '+(j+1)+': posición '+dupes[0]+' repetida. Cada posición debe ser única.');
-        setTimeout(() => { btns.forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2000);
-        return;
+      if(vals.length < 2) continue;
+      const seen = new Set();
+      for(const v of vals){
+        if(seen.has(v)){ alert('⚠ Jornada '+(j+1)+': posición '+v+' repetida.'); return; }
+        seen.add(v);
       }
     }
 
