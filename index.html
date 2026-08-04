@@ -916,26 +916,14 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
   }
 
   async function publicarCambios(){
-    const saveNav = document.getElementById('save-trigger');
-    const saveFooter = document.getElementById('save-btn-footer');
+    const btn1 = document.getElementById('save-trigger');
+    const btn2 = document.getElementById('save-btn-footer');
+    [btn1, btn2].forEach(b => { if(b) b.textContent = '⏳...'; });
 
-    // Validar duplicados (aviso, no bloquea)
-    for(let j = 0; j < NUM_JORNADAS; j++){
-      const vals = ranks.map(row => row[j]).filter(v => v !== null && v !== undefined);
-      if(vals.length < 2) continue;
-      const seen = new Set(), dupes = [];
-      for(const v of vals){ if(seen.has(v)) dupes.push(v); seen.add(v); }
-      if(dupes.length > 0 && !confirm('⚠ Jornada '+(j+1)+' tiene posiciones repetidas: '+[...new Set(dupes)].join(', ')+'\n\n¿Guardar de todas formas?')) return;
-    }
-
-    [saveNav, saveFooter].forEach(b => { if(b) b.textContent = '⏳...'; });
-
-    // Siempre guardar en localStorage primero
     saveRanks();
     savePagos();
     dirty = false;
 
-    // Luego intentar publicar en servidor
     try {
       const res = await fetch('/api/save', {
         method: 'POST',
@@ -943,16 +931,15 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
         body: JSON.stringify({ jornadas: ranks, pagos })
       });
       const data = await res.json();
-      if(res.ok && data.ok){
-        [saveNav, saveFooter].forEach(b => { if(b) b.textContent = '✅'; });
-        setTimeout(() => { window.location.reload(); }, 800);
-        return;
-      }
-      console.warn('API error:', data.error);
-    } catch(e){ console.warn('API offline:', e.message); }
-
-    [saveNav, saveFooter].forEach(b => { if(b) b.textContent = '💾'; });
-    setTimeout(() => { [saveNav, saveFooter].forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2000);
+      if(!res.ok || !data.ok) throw new Error(data.error || 'Error ' + res.status);
+      [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; });
+      setTimeout(() => window.location.reload(), 500);
+      return;
+    } catch(e){
+      [btn1, btn2].forEach(b => { if(b) b.textContent = '💾'; });
+      alert('⚠ Solo guardado en este navegador.\n\n' + e.message + '\n\nVerifica que GITHUB_TOKEN esté configurado en Cloudflare → Settings → Variables de entorno → Functions.');
+    }
+    setTimeout(() => { [btn1, btn2].forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2000);
   }
 
   async function loadFromRepo(path){
