@@ -908,8 +908,9 @@
     let sha = null;
     try{ const r = await fetch(url, { headers: { Authorization: 'Bearer '+token } }); if(r.ok) sha = (await r.json()).sha; }catch(e){}
     const body = { message: 'Update ' + path, content: encoded }; if(sha) body.sha = sha;
-    const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer '+token, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if(!res.ok){ const e = await res.json(); alert('Error: '+ (e.message || res.status)); if(res.status === 401) localStorage.removeItem('comunio_gh_token'); return false; }
+const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer '+token, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if(!res.ok){ const e = await res.json(); console.error('ghSave error:', e); alert('Error al guardar '+path+': '+(e.message||res.status)+'\n\nVerifica que el token tenga scope "repo".'); if(res.status===401) localStorage.removeItem('comunio_gh_token'); return false; }
+    console.log('ghSave OK:', path);
     return true;
   }
 
@@ -918,8 +919,17 @@
     btns.forEach(b => { if(b) b.textContent = '⏳...'; });
     const ok1 = await ghSave('jornadas-data.json', ranks);
     const ok2 = await ghSave('pagos-data.json', pagos);
-    btns.forEach(b => { if(b) b.textContent = (ok1 && ok2) ? '✅ Guardado' : '❌ Error'; });
-    if(ok1 && ok2) dirty = false;
+    const ok = ok1 && ok2;
+    btns.forEach(b => { if(b) b.textContent = ok ? '✅' : '❌'; });
+    if(ok){
+      dirty = false;
+      // Recargar datos del repo para que se sincronice
+      const repoRanks = await loadFromRepo('jornadas-data.json');
+      if(repoRanks && Array.isArray(repoRanks)){ ranks = repoRanks; saveRanks(); }
+      const repoPagos = await loadFromRepo('pagos-data.json');
+      if(repoPagos && Array.isArray(repoPagos)){ pagos = repoPagos; savePagos(); }
+      renderAll();
+    }
     setTimeout(() => { btns.forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2500);
   }
 
