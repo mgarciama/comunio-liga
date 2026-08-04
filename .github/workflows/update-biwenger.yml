@@ -34,7 +34,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes"
           else
-            git commit -m "⬆ Update Biwenger standings"
-            git pull --rebase
+            git commit -m "⬆ Update Biwenger standings" || true
+            git pull --rebase -X theirs || true
             git push
           fi
