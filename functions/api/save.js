@@ -3,7 +3,7 @@ export async function onRequestPost({ request, env }) {
   const REPO = 'mgarciama/comunio-liga';
 
   if (!TOKEN) {
-    return Response.json({ error: 'GITHUB_TOKEN no configurado en Cloudflare' }, { status: 500 });
+    return Response.json({ error: 'GITHUB_TOKEN no configurado' }, { status: 500 });
   }
 
   try {
@@ -15,14 +15,22 @@ export async function onRequestPost({ request, env }) {
       { path: 'pagos-data.json', content: pagos },
     ];
 
+    function toBase64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
     for (const file of files) {
-      const encoded = btoa(JSON.stringify(file.content, null, 2));
+      const encoded = toBase64(JSON.stringify(file.content, null, 2));
       const url = `https://api.github.com/repos/${REPO}/contents/${file.path}`;
 
-      // Get current SHA
       let sha = null;
       try {
-        const r = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}`, 'User-Agent': 'cloudflare-pages' } });
+        const r = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}`, 'User-Agent': 'cloudflare' } });
         if (r.ok) sha = (await r.json()).sha;
       } catch {}
 
@@ -34,7 +42,7 @@ export async function onRequestPost({ request, env }) {
         headers: {
           Authorization: `Bearer ${TOKEN}`,
           'Content-Type': 'application/json',
-          'User-Agent': 'cloudflare-pages',
+          'User-Agent': 'cloudflare',
         },
         body: JSON.stringify(ghBody),
       });
