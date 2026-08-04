@@ -1027,14 +1027,16 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
 
   // Cargar del repo al iniciar (background, no bloquea)
   (async function(){
+    let changed = false;
     try {
       const r1 = await fetch('https://raw.githubusercontent.com/mgarciama/comunio-liga/main/jornadas-data.json');
-      if(r1.ok){ const d = await r1.json(); if(Array.isArray(d) && d.length === PLAYERS.length){ ranks = d; saveRanks(); } }
+      if(r1.ok){ const d = await r1.json(); if(Array.isArray(d) && d.length === PLAYERS.length){ ranks = d; saveRanks(); changed = true; } }
     } catch(e) {}
     try {
       const r2 = await fetch('https://raw.githubusercontent.com/mgarciama/comunio-liga/main/pagos-data.json');
-      if(r2.ok){ const d = await r2.json(); if(Array.isArray(d)){ pagos = d; savePagos(); } }
+      if(r2.ok){ const d = await r2.json(); if(Array.isArray(d)){ pagos = d; savePagos(); changed = true; } }
     } catch(e) {}
+    if(changed) renderAll();
   })();
 
   function computePrimas(i){
