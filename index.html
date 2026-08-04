@@ -919,33 +919,26 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
     const btn1 = document.getElementById('save-trigger');
     const btn2 = document.getElementById('save-btn-footer');
 
-    // Guardar local primero (instantáneo)
     saveRanks();
     savePagos();
     dirty = false;
     [btn1, btn2].forEach(b => { if(b) b.textContent = '⬆...'; });
 
-    // Intentar publicar en segundo plano con timeout
     try {
       const ctrl = new AbortController();
-      const timeout = setTimeout(() => ctrl.abort(), 5000);
+      setTimeout(() => ctrl.abort(), 5000);
       const res = await fetch('/api/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jornadas: ranks, pagos }),
         signal: ctrl.signal
       });
-      clearTimeout(timeout);
       const data = await res.json();
-      if(res.ok && data.ok){
-        [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; });
-        setTimeout(() => window.location.reload(), 500);
-        return;
-      }
-      throw new Error(data.error || 'Error '+res.status);
+      if(res.ok && data.ok){ [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; }); }
+      else throw new Error(data.error || '');
     } catch(e){
       [btn1, btn2].forEach(b => { if(b) b.textContent = '💾'; });
-      if(e.name !== 'AbortError') alert('⚠ Solo guardado localmente.\n\n' + e.message);
+      if(e.name === 'AbortError') console.warn('API timeout');
     }
     setTimeout(() => { [btn1, btn2].forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2000);
   }
@@ -1020,17 +1013,6 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
 
   let ranks = loadRanks();
 
-  // Cargar datos desde el repo
-  (async function(){
-    try {
-      const r1 = await fetch('https://raw.githubusercontent.com/mgarciama/comunio-liga/main/jornadas-data.json');
-      if(r1.ok){ const d = await r1.json(); if(Array.isArray(d) && d.length === PLAYERS.length){ ranks = d; saveRanks(); } }
-      const r2 = await fetch('https://raw.githubusercontent.com/mgarciama/comunio-liga/main/pagos-data.json');
-      if(r2.ok){ const d = await r2.json(); if(Array.isArray(d) && d.length === pagos.length){ pagos = d; savePagos(); } }
-    } catch(e) {}
-    renderAll();
-  })();
-
   function computePrimas(i){
     let total = 0;
     for(const r of ranks[i]){
@@ -1094,16 +1076,21 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
       container.appendChild(row);
     });
 
-    if(isAdmin && !isAll){
+if(isAdmin && !isAll){
       container.oninput = function(e){
         const inp = e.target.closest('.pos-input');
         if(!inp) return;
         const p = Number(inp.dataset.p), j = Number(inp.dataset.j);
-        let val = inp.value===''?null:Math.max(1,Math.min(14,Math.round(Number(inp.value))));
+        let val = inp.value === '' ? null : Math.max(1, Math.min(14, Math.round(Number(inp.value))));
         ranks[p][j] = val;
         saveRanks(); dirty = true;
         updateBanner();
-        renderJornadaCards();
+        // Actualizar solo esta fila sin re-renderizar todo
+        const row = inp.closest('.jornada-row');
+        const posSpan = row.querySelector('.pos');
+        const cls = val === 1 ? '' : (val === 2 || val === 3 ? ' r2' : '');
+        posSpan.className = 'pos' + cls;
+        posSpan.textContent = val !== null ? val : '—';
       };
     }
   }
@@ -1240,6 +1227,7 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
   renderPagos();
 
   function renderAll(){ renderJornadaCards(); renderPagos(); updateBanner(); }
+  renderAll();
 
   // --- Datos Biwenger (clasificación real por puntos) ---
   async function loadBiwengerData() {
