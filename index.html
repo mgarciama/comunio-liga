@@ -996,8 +996,8 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
       // Highlight active menu item
       document.querySelectorAll('nav a[href^="#"]').forEach(l => l.classList.remove('nav-active'));
       a.classList.add('nav-active');
-      // Re-trigger reveals
-      target.querySelectorAll('.reveal:not(.in)').forEach(el => el.classList.add('in'));
+      if(href === '#jornadas') renderJornadaCards();
+      if(href === '#pagos') renderPagos();
     });
   });
   // Highlight inicio por defecto
@@ -1255,14 +1255,17 @@ if(isAdmin && !isAll){
 
   function renderAll(){ renderJornadaCards(); renderPagos(); updateBanner(); }
 
-  // Cargar datos desde servidor (rápido, mismo dominio)
+  // Cargar datos desde servidor solo si localStorage está vacío (1ª visita)
   (async function(){
-    try {
-      const r1 = await fetch('/jornadas-data.json');
-      if(r1.ok){ const d = await r1.json(); if(Array.isArray(d) && d.length === PLAYERS.length){ ranks = d; saveRanks(); } }
-      const r2 = await fetch('/pagos-data.json');
-      if(r2.ok){ const d = await r2.json(); if(Array.isArray(d)){ pagos = d; savePagos(); } }
-    } catch(e) {}
+    const hasLocalData = ranks.some(row => row.some(v => v !== null));
+    if(!hasLocalData){
+      try {
+        const r1 = await fetch('/jornadas-data.json');
+        if(r1.ok){ const d = await r1.json(); if(Array.isArray(d) && d.length === PLAYERS.length){ ranks = d; saveRanks(); } }
+        const r2 = await fetch('/pagos-data.json');
+        if(r2.ok){ const d = await r2.json(); if(Array.isArray(d)){ pagos = d; savePagos(); } }
+      } catch(e) {}
+    }
     renderAll();
   })();
 
