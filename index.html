@@ -956,7 +956,9 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
   document.querySelectorAll('nav a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
       e.preventDefault();
-      const target = document.querySelector(a.getAttribute('href'));
+      const href = a.getAttribute('href');
+      if(href === '#') return; // Admin/Salir/Guardar links
+      const target = document.querySelector(href);
       if(!target) return;
       document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
       target.classList.add('active');
