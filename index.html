@@ -915,53 +915,56 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
     return true;
   }
 
-  async function syncToGitHub(data, path){
-    let token = localStorage.getItem('gh_sync_token');
-    if(!token){
-      token = prompt('🔐 Token de GitHub (solo la 1ª vez):\n\nNecesitas un Personal Access Token con scope "repo".\nCréalo en GitHub → Settings → Developer settings → Tokens (classic)');
-      if(!token) return false;
-      localStorage.setItem('gh_sync_token', token);
-    }
-    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-    const url = 'https://api.github.com/repos/mgarciama/comunio-liga/contents/' + path;
-    try {
-      const get = await fetch(url, { headers: { Authorization: 'Bearer '+token } });
-      let sha = null;
-      if(get.ok) sha = (await get.json()).sha;
-      const body = { message: 'Update '+path, content: encoded };
-      if(sha) body.sha = sha;
-      const res = await fetch(url, {
-        method: 'PUT',
-        headers: { Authorization: 'Bearer '+token, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      if(!res.ok){ const e = await res.json(); throw new Error(e.message); }
-      return true;
-    } catch(e){
-      if(e.message.includes('401')){ localStorage.removeItem('gh_sync_token'); }
-      throw e;
-    }
-  }
-
   async function publicarCambios(){
     const btn1 = document.getElementById('save-trigger');
     const btn2 = document.getElementById('save-btn-footer');
 
+    // Validar: posiciones 1-14 únicas por jornada
+    for(let j = 0; j < NUM_JORNADAS; j++){
+      const vals = ranks.map(row => row[j]).filter(v => v !== null && v !== undefined);
+      if(vals.length < 2) continue;
+      for(let n = 1; n <= 14; n++){
+        const count = vals.filter(v => v === n).length;
+        if(count > 1){
+          alert('⚠ Jornada '+(j+1)+': la posición '+n+' aparece '+count+' veces.\nCada posición (1-14) debe ser única.');
+          return;
+        }
+      }
+    }
+
+    [btn1, btn2].forEach(b => { if(b) b.textContent = '⏳...'; });
     saveRanks();
     savePagos();
     dirty = false;
-    [btn1, btn2].forEach(b => { if(b) b.textContent = '⬆...'; });
 
-    try {
-      const ctrl = new AbortController();
-      setTimeout(() => ctrl.abort(), 8000);
-      const ok1 = await syncToGitHub(ranks, 'jornadas-data.json');
-      const ok2 = await syncToGitHub(pagos, 'pagos-data.json');
-      if(!ok1 || !ok2) throw new Error('Falló la sincronización');
-      [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; });
-    } catch(e){
+    // Pedir token y sincronizar con GitHub
+    const token = prompt('🔐 Token de GitHub (scope: repo):');
+    if(token){
+      try {
+        const paths = [
+          { name: 'jornadas-data.json', data: ranks },
+          { name: 'pagos-data.json', data: pagos }
+        ];
+        for(const file of paths){
+          const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(file.data, null, 2))));
+          const url = 'https://api.github.com/repos/mgarciama/comunio-liga/contents/'+file.name;
+          const get = await fetch(url, { headers: { Authorization: 'Bearer '+token } });
+          const sha = get.ok ? (await get.json()).sha : null;
+          const body = { message: 'Update '+file.name, content: encoded };
+          if(sha) body.sha = sha;
+          await fetch(url, {
+            method: 'PUT',
+            headers: { Authorization: 'Bearer '+token, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+        }
+        [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; });
+      } catch(e){
+        [btn1, btn2].forEach(b => { if(b) b.textContent = '⚠'; });
+        alert('Error al sincronizar: '+e.message);
+      }
+    } else {
       [btn1, btn2].forEach(b => { if(b) b.textContent = '💾'; });
-      if(e.name !== 'AbortError') alert('Solo guardado localmente.\n\n' + e.message);
     }
     setTimeout(() => { [btn1, btn2].forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2000);
   }
@@ -1035,30 +1038,7 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
   }
 
   let ranks = loadRanks();
-
-  // Sincronizar desde GitHub al cargar (si hay datos más recientes)
-  (async function(){
-    try {
-      const r1 = await fetch('https://raw.githubusercontent.com/mgarciama/comunio-liga/main/jornadas-data.json', { cache: 'no-cache' });
-      if(r1.ok){
-        const d = await r1.json();
-        if(Array.isArray(d) && d.length === PLAYERS.length){
-          const localTime = localStorage.getItem('comunio_last_sync') || 0;
-          const now = Date.now();
-          if(now - localTime > 10000){ // solo si hace >10s del último sync
-            ranks = d; saveRanks();
-          }
-        }
-      }
-      const r2 = await fetch('https://raw.githubusercontent.com/mgarciama/comunio-liga/main/pagos-data.json', { cache: 'no-cache' });
-      if(r2.ok){
-        const d = await r2.json();
-        if(Array.isArray(d) && d.length === pagos.length) pagos = d;
-      }
-      localStorage.setItem('comunio_last_sync', Date.now());
-    } catch(e) {}
-    renderAll();
-  })();
+  renderAll();
 
   function computePrimas(i){
     let total = 0;
@@ -1128,11 +1108,12 @@ if(isAdmin && !isAll){
         const inp = e.target.closest('.pos-input');
         if(!inp) return;
         const p = Number(inp.dataset.p), j = Number(inp.dataset.j);
-        let val = inp.value === '' ? null : Math.max(1, Math.min(14, Math.round(Number(inp.value))));
+        let raw = parseInt(inp.value);
+        let val = (isNaN(raw) || raw === 0 || raw < 1 || raw > 14) ? null : raw;
         ranks[p][j] = val;
         saveRanks(); dirty = true;
         updateBanner();
-        // Actualizar solo esta fila sin re-renderizar todo
+        // Actualizar solo esta fila
         const row = inp.closest('.jornada-row');
         const posSpan = row.querySelector('.pos');
         const cls = val === 1 ? '' : (val === 2 || val === 3 ? ' r2' : '');
