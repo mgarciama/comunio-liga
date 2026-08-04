@@ -497,6 +497,8 @@
       <li><a href="#" id="login-trigger" style="color:var(--amber-dim);font-size:12px;">👤</a></li>
       <li class="admin-only"><a href="#" id="logout-trigger" style="color:var(--red);font-size:12px;">↩</a></li>
       <li class="admin-only"><a href="#" id="save-trigger" style="color:var(--amber);font-size:12px;">💾</a></li>
+      <li class="admin-only"><a href="#" id="import-trigger" style="color:var(--chalk-dim);font-size:12px;">📥</a></li>
+      <input type="file" id="import-file" accept=".json" style="display:none;">
     </ul>
     <button class="nav-toggle" aria-label="Menú">☰</button>
   </div>
@@ -876,6 +878,28 @@
   });
   document.getElementById('save-btn-footer').addEventListener('click', publicarCambios);
 
+  // Import trigger
+  document.getElementById('import-trigger').addEventListener('click', e => {
+    e.preventDefault();
+    document.getElementById('import-file').click();
+  });
+  document.getElementById('import-file').addEventListener('change', function(){
+    const file = this.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try {
+        const data = JSON.parse(e.target.result);
+        if(data.jornadas && Array.isArray(data.jornadas)){ ranks = data.jornadas; saveRanks(); }
+        if(data.pagos && Array.isArray(data.pagos)){ pagos = data.pagos; savePagos(); }
+        renderAll();
+        alert('✅ Datos importados');
+      } catch(ex){ alert('❌ Archivo no válido'); }
+    };
+    reader.readAsText(file);
+    this.value = '';
+  });
+
   // Login modal
   document.getElementById('login-modal').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
   document.getElementById('login-btn').addEventListener('click', () => {
@@ -919,53 +943,28 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
     const btn1 = document.getElementById('save-trigger');
     const btn2 = document.getElementById('save-btn-footer');
 
-    // Validar: posiciones 1-14 únicas por jornada
+    // Validar posiciones únicas
     for(let j = 0; j < NUM_JORNADAS; j++){
       const vals = ranks.map(row => row[j]).filter(v => v !== null && v !== undefined);
       if(vals.length < 2) continue;
       for(let n = 1; n <= 14; n++){
-        const count = vals.filter(v => v === n).length;
-        if(count > 1){
-          alert('⚠ Jornada '+(j+1)+': la posición '+n+' aparece '+count+' veces.\nCada posición (1-14) debe ser única.');
-          return;
+        if(vals.filter(v => v === n).length > 1){
+          alert('⚠ Jornada '+(j+1)+': posición '+n+' repetida.'); return;
         }
       }
     }
 
-    [btn1, btn2].forEach(b => { if(b) b.textContent = '⏳...'; });
     saveRanks();
     savePagos();
     dirty = false;
 
-    // Pedir token y sincronizar con GitHub
-    const token = prompt('🔐 Token de GitHub (scope: repo):');
-    if(token){
-      try {
-        const paths = [
-          { name: 'jornadas-data.json', data: ranks },
-          { name: 'pagos-data.json', data: pagos }
-        ];
-        for(const file of paths){
-          const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(file.data, null, 2))));
-          const url = 'https://api.github.com/repos/mgarciama/comunio-liga/contents/'+file.name;
-          const get = await fetch(url, { headers: { Authorization: 'Bearer '+token } });
-          const sha = get.ok ? (await get.json()).sha : null;
-          const body = { message: 'Update '+file.name, content: encoded };
-          if(sha) body.sha = sha;
-          await fetch(url, {
-            method: 'PUT',
-            headers: { Authorization: 'Bearer '+token, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
-        }
-        [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; });
-      } catch(e){
-        [btn1, btn2].forEach(b => { if(b) b.textContent = '⚠'; });
-        alert('Error al sincronizar: '+e.message);
-      }
-    } else {
-      [btn1, btn2].forEach(b => { if(b) b.textContent = '💾'; });
-    }
+    // Descargar archivo JSON con todos los datos
+    const blob = new Blob([JSON.stringify({ jornadas: ranks, pagos }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'comunio-data-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; });
     setTimeout(() => { [btn1, btn2].forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2000);
   }
 
@@ -1254,20 +1253,7 @@ if(isAdmin && !isAll){
   renderPagos();
 
   function renderAll(){ renderJornadaCards(); renderPagos(); updateBanner(); }
-
-  // Cargar datos desde servidor solo si localStorage está vacío (1ª visita)
-  (async function(){
-    const hasLocalData = ranks.some(row => row.some(v => v !== null));
-    if(!hasLocalData){
-      try {
-        const r1 = await fetch('/jornadas-data.json');
-        if(r1.ok){ const d = await r1.json(); if(Array.isArray(d) && d.length === PLAYERS.length){ ranks = d; saveRanks(); } }
-        const r2 = await fetch('/pagos-data.json');
-        if(r2.ok){ const d = await r2.json(); if(Array.isArray(d)){ pagos = d; savePagos(); } }
-      } catch(e) {}
-    }
-    renderAll();
-  })();
+  renderAll();
 
   // --- Datos Biwenger (clasificación real por puntos) ---
   async function loadBiwengerData() {
