@@ -6,60 +6,54 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ error: 'GITHUB_TOKEN no configurado' }, { status: 500 });
   }
 
+  function toBase64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  }
+
   try {
     const body = await request.json();
-    const { jornadas, pagos } = body;
-
     const files = [
-      { path: 'jornadas-data.json', content: jornadas },
-      { path: 'pagos-data.json', content: pagos },
+      { path: 'jornadas-data.json', data: body.jornadas },
+      { path: 'pagos-data.json', data: body.pagos },
     ];
 
-    function toBase64(str) {
-      const bytes = new TextEncoder().encode(str);
-      let binary = '';
-      for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      return btoa(binary);
-    }
-
     for (const file of files) {
-      const encoded = toBase64(JSON.stringify(file.content, null, 2));
+      const encoded = toBase64(JSON.stringify(file.data, null, 2));
       const url = `https://api.github.com/repos/${REPO}/contents/${file.path}`;
+      const authHeaders = { Authorization: `Bearer ${TOKEN}`, 'User-Agent': 'cloudflare' };
 
-      let success = false;
-      for (let attempt = 0; attempt < 3; attempt++) {
+      let ok = false;
+      for (let attempt = 0; attempt < 3 && !ok; attempt++) {
+        // Get latest SHA every attempt
         let sha = null;
         try {
-          const r = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}`, 'User-Agent': 'cloudflare' } });
-          if (r.ok) sha = (await r.json()).sha;
-        } catch {}
+          const getRes = await fetch(url, { headers: authHeaders });
+          if (getRes.ok) sha = (await getRes.json()).sha;
+        } catch (e) {}
 
         const ghBody = { message: `Update ${file.path}`, content: encoded };
         if (sha) ghBody.sha = sha;
 
-        const res = await fetch(url, {
+        const putRes = await fetch(url, {
           method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${TOKEN}`,
-            'Content-Type': 'application/json',
-            'User-Agent': 'cloudflare',
-          },
+          headers: { ...authHeaders, 'Content-Type': 'application/json' },
           body: JSON.stringify(ghBody),
         });
 
-        if (res.ok) { success = true; break; }
-        if (res.status !== 409 && res.status !== 422) {
-          const err = await res.json();
-          return Response.json({ error: `${file.path}: ${err.message}` }, { status: 500 });
+        if (putRes.ok) { ok = true; break; }
+
+        const err = await putRes.json();
+        if (putRes.status === 422 || putRes.status === 409) {
+          // SHA conflict - wait and retry
+          await new Promise(r => setTimeout(r, 800));
+          continue;
         }
-        // SHA conflict - retry after delay
-        await new Promise(r => setTimeout(r, 500));
+        return Response.json({ error: `${file.path}: ${err.message}` }, { status: 500 });
       }
-      if (!success) {
-        return Response.json({ error: `${file.path}: conflicto tras reintentos` }, { status: 500 });
-      }
+      if (!ok) return Response.json({ error: `${file.path}: conflicto tras 3 intentos` }, { status: 500 });
     }
 
     return Response.json({ ok: true });
