@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-04T12:55:51.259Z",
+  "updatedAt": "2026-08-05T07:51:47.907Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -72,17 +72,17 @@
     },
     {
       "position": 10,
-      "name": "la makina",
-      "points": 0,
-      "icon": "https://lh3.googleusercontent.com/a/AGNmyxZ9PpTff59PDqGLrbwYyHyB8cv7vujOzuCjRBO7=s300-c",
-      "id": 13949428
-    },
-    {
-      "position": 11,
       "name": "el maki Roldan",
       "points": 0,
       "icon": "https://cdn.biwenger.com/icons/26.png",
       "id": 2213278
+    },
+    {
+      "position": 11,
+      "name": "la makina",
+      "points": 0,
+      "icon": "https://lh3.googleusercontent.com/a/AGNmyxZ9PpTff59PDqGLrbwYyHyB8cv7vujOzuCjRBO7=s300-c",
+      "id": 13949428
     },
     {
       "position": 12,
