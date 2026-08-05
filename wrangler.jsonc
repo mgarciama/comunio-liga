@@ -1,0 +1,15 @@
+{
+  "name": "comunio-liga",
+  "compatibility_date": "2026-07-27",
+  "main": "worker.js",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "LIGA_KV",
+      "id": "6f7df05e1001432c8661884b970ab14c"
+    }
+  ]
+}
