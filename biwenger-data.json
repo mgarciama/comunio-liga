@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-06T10:29:08.741Z",
+  "updatedAt": "2026-08-07T08:46:51.444Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -30,17 +30,17 @@
     },
     {
       "position": 4,
-      "name": "Sonámbulos Hermanos UF",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/12595114.png",
-      "id": 12595114
-    },
-    {
-      "position": 5,
       "name": "Los Carrinton FC",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/t/15.png",
       "id": 2213283
+    },
+    {
+      "position": 5,
+      "name": "Sonámbulos Hermanos UF",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/12595114.png",
+      "id": 12595114
     },
     {
       "position": 6,
