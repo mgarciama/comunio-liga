@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-08T08:28:49.243Z",
+  "updatedAt": "2026-08-09T08:31:00.613Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -30,38 +30,38 @@
     },
     {
       "position": 4,
-      "name": "Bayer de Los Caídos FC",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/13955595.png",
-      "id": 13955595
-    },
-    {
-      "position": 5,
       "name": "Sonámbulos Hermanos UF",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/12595114.png",
       "id": 12595114
     },
     {
-      "position": 6,
-      "name": "Los Carrinton FC",
+      "position": 5,
+      "name": "Bayer de Los Caídos FC",
       "points": 0,
-      "icon": "https://cdn.biwenger.com/i/t/15.png",
-      "id": 2213283
+      "icon": "https://cdn.biwenger.com/i/u/13955595.png",
+      "id": 13955595
     },
     {
-      "position": 7,
+      "position": 6,
       "name": "Turbanera",
       "points": 0,
       "icon": "https://cdn.biwenger.com/icons/37.png",
       "id": 2216723
     },
     {
-      "position": 8,
+      "position": 7,
       "name": "Luis de la Fuente",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13946856.png",
       "id": 13946856
+    },
+    {
+      "position": 8,
+      "name": "Los Carrinton FC",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/t/15.png",
+      "id": 2213283
     },
     {
       "position": 9,
