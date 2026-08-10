@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-09T08:31:00.613Z",
+  "updatedAt": "2026-08-10T09:08:03.829Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -16,31 +16,31 @@
     },
     {
       "position": 2,
-      "name": "Fermux",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/2217630.png",
-      "id": 2217630
-    },
-    {
-      "position": 3,
       "name": "Los Reyes de Europa C.F",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/9990906.png?v=60",
       "id": 9990906
     },
     {
-      "position": 4,
-      "name": "Sonámbulos Hermanos UF",
+      "position": 3,
+      "name": "Fermux",
       "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/12595114.png",
-      "id": 12595114
+      "icon": "https://cdn.biwenger.com/i/u/2217630.png",
+      "id": 2217630
     },
     {
-      "position": 5,
+      "position": 4,
       "name": "Bayer de Los Caídos FC",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13955595.png",
       "id": 13955595
+    },
+    {
+      "position": 5,
+      "name": "Sonámbulos Hermanos UF",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/12595114.png",
+      "id": 12595114
     },
     {
       "position": 6,
@@ -58,17 +58,17 @@
     },
     {
       "position": 8,
-      "name": "Los Carrinton FC",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/t/15.png",
-      "id": 2213283
-    },
-    {
-      "position": 9,
       "name": "el maki Roldan",
       "points": 0,
       "icon": "https://cdn.biwenger.com/icons/26.png",
       "id": 2213278
+    },
+    {
+      "position": 9,
+      "name": "Los Carrinton FC",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/t/15.png",
+      "id": 2213283
     },
     {
       "position": 10,
