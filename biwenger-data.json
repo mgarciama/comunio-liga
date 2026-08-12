@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-11T08:43:51.662Z",
+  "updatedAt": "2026-08-12T09:02:29.238Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -23,31 +23,31 @@
     },
     {
       "position": 3,
-      "name": "Bayer de Los Caídos FC",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/13955595.png",
-      "id": 13955595
-    },
-    {
-      "position": 4,
       "name": "Fermux",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/2217630.png",
       "id": 2217630
     },
     {
-      "position": 5,
+      "position": 4,
       "name": "Turbanera",
       "points": 0,
       "icon": "https://cdn.biwenger.com/icons/37.png",
       "id": 2216723
     },
     {
-      "position": 6,
+      "position": 5,
       "name": "Sonámbulos Hermanos UF",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/12595114.png",
       "id": 12595114
+    },
+    {
+      "position": 6,
+      "name": "Bayer de Los Caídos FC",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/13955595.png",
+      "id": 13955595
     },
     {
       "position": 7,
@@ -65,17 +65,17 @@
     },
     {
       "position": 9,
-      "name": "Oportopor",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/2213275.png",
-      "id": 2213275
-    },
-    {
-      "position": 10,
       "name": "el maki Roldan",
       "points": 0,
       "icon": "https://cdn.biwenger.com/icons/26.png",
       "id": 2213278
+    },
+    {
+      "position": 10,
+      "name": "Oportopor",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/2213275.png",
+      "id": 2213275
     },
     {
       "position": 11,
