@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-13T09:03:16.132Z",
+  "updatedAt": "2026-08-14T08:59:08.217Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -30,31 +30,31 @@
     },
     {
       "position": 4,
-      "name": "Turbanera",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/icons/37.png",
-      "id": 2216723
-    },
-    {
-      "position": 5,
       "name": "el maki Roldan",
       "points": 0,
       "icon": "https://cdn.biwenger.com/icons/26.png",
       "id": 2213278
     },
     {
-      "position": 6,
-      "name": "Fermux",
+      "position": 5,
+      "name": "Turbanera",
       "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/2217630.png",
-      "id": 2217630
+      "icon": "https://cdn.biwenger.com/icons/37.png",
+      "id": 2216723
     },
     {
-      "position": 7,
+      "position": 6,
       "name": "Luis de la Fuente",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/u/13946856.png",
       "id": 13946856
+    },
+    {
+      "position": 7,
+      "name": "Fermux",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/2217630.png",
+      "id": 2217630
     },
     {
       "position": 8,
@@ -65,17 +65,17 @@
     },
     {
       "position": 9,
-      "name": "Oportopor",
-      "points": 0,
-      "icon": "https://cdn.biwenger.com/i/u/2213275.png",
-      "id": 2213275
-    },
-    {
-      "position": 10,
       "name": "Los Carrinton FC",
       "points": 0,
       "icon": "https://cdn.biwenger.com/i/t/15.png",
       "id": 2213283
+    },
+    {
+      "position": 10,
+      "name": "Oportopor",
+      "points": 0,
+      "icon": "https://cdn.biwenger.com/i/u/2213275.png",
+      "id": 2213275
     },
     {
       "position": 11,
