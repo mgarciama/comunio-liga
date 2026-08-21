@@ -2,7 +2,12 @@ name: Update Biwenger Data
 
 on:
   schedule:
-    - cron: '0 8 * * *'
+    # GitHub Actions programa SIEMPRE en UTC. Como España cambia entre
+    # CEST (UTC+2, horario de verano) y CET (UTC+1, horario de invierno),
+    # ponemos un disparo para cada caso. El paso "Comprobar hora en Madrid"
+    # decide cuál de los dos es el que realmente debe ejecutarse ese día.
+    - cron: '30 5 * * *'   # 07:30 en Madrid durante horario de VERANO (CEST)
+    - cron: '30 6 * * *'   # 07:30 en Madrid durante horario de INVIERNO (CET)
   push:
     branches: [main]
   workflow_dispatch:
@@ -16,17 +21,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Comprobar que es la hora objetivo en Madrid
+        if: github.event_name == 'schedule'
+        run: |
+          HOUR=$(TZ=Europe/Madrid date +%H:%M)
+          echo "Hora actual en Madrid: $HOUR"
+          # Aceptamos un margen de 1 minuto por si GitHub retrasa el disparo
+          if [ "$HOUR" != "07:30" ] && [ "$HOUR" != "07:31" ]; then
+            echo "No es la hora objetivo (07:30) en Madrid. Saliendo sin ejecutar el fetch."
+            echo "SKIP=true" >> "$GITHUB_ENV"
+          else
+            echo "Hora correcta, se ejecuta la actualización."
+            echo "SKIP=false" >> "$GITHUB_ENV"
+          fi
+
       - uses: actions/setup-node@v4
+        if: env.SKIP != 'true'
         with:
           node-version: '22'
 
       - name: Fetch Biwenger data
+        if: env.SKIP != 'true'
         env:
           BIWENGER_EMAIL: ${{ secrets.BIWENGER_EMAIL }}
           BIWENGER_PASSWORD: ${{ secrets.BIWENGER_PASSWORD }}
         run: node fetch-biwenger.mjs
 
       - name: Commit if changed
+        if: env.SKIP != 'true'
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
