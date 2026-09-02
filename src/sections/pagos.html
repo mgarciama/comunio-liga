@@ -1,0 +1,37 @@
+<section id="pagos">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Cuotas</span>
+      <h2>Quién ha pagado</h2>
+      <p>Estado de la cuota de entrada a la liga (40 € por jugador, o 10 € + premium en el caso especial).</p>
+    </div>
+
+    <div class="pagos-summary reveal">
+      <div class="card">
+        <div class="n ok" id="pg-pagados">10/14</div>
+        <div class="l">Jugadores al día</div>
+      </div>
+      <div class="card">
+        <div class="n warn" id="pg-pendientes">4</div>
+        <div class="l">Pendientes de pago</div>
+      </div>
+      <div class="card">
+        <div class="n amb" id="pg-recaudado">380€ <span style="font-size:18px;color:var(--chalk-dim)">/ 530€</span></div>
+        <div class="l">Recaudado</div>
+        <div class="progress-track"><div class="progress-fill" id="pg-fill" style="width:0%"></div></div>
+        <div class="progress-label"><span>Bote actual</span><b id="pg-restante">150€ por cobrar</b></div>
+      </div>
+    </div>
+
+    <div class="pagos-grid">
+      <div class="pagos-col ok reveal">
+        <h3>✓ Pagado</h3>
+        <div id="lista-pagados"></div>
+      </div>
+      <div class="pagos-col warn reveal">
+        <h3>⚠ Falta por pagar</h3>
+        <div id="lista-pendientes"></div>
+      </div>
+    </div>
+  </div>
+</section>

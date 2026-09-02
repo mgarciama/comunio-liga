@@ -1,0 +1,26 @@
+<section id="jornadas">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Marcador · Jornada a jornada</span>
+      <h2>¿Por dónde vamos?</h2>
+      <p>Posiciones de cada jugador en cada jornada. Las primas se calculan automáticamente.</p>
+    </div>
+
+    <div class="jornada-banner reveal">
+      <div class="big" id="jb-actual">0 <span>/ 38</span></div>
+      <div class="sep"></div>
+      <div class="info">Jornada actual<br><b id="jb-label">Aún sin empezar</b></div>
+      <div class="sep"></div>
+      <div class="info">Primas repartidas<br><b id="jb-primas">0€ / 152€</b></div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 mb-3 reveal flex-wrap">
+      <p class="jornadas-note mb-0">🥇 <b>1.º</b> = 2€ &nbsp;·&nbsp; 🥈🥉 <b>2.º y 3.º</b> = 1€ cada uno</p>
+      <select id="jornada-filter" class="jornada-select">
+        <option value="all">Todas las jornadas</option>
+      </select>
+    </div>
+
+    <div class="jornadas-cards reveal" id="jornadas-cards"></div>
+  </div>
+</section>

@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Liga El mundo para-lelo 26/27">
+<title>Liga El mundo para-lelo 26/27</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+    --pitch:#0B3D2E;
+    --pitch-dark:#082B21;
+    --chalk:#F5F3EC;
+    --chalk-dim:#C7CFC5;
+    --amber:#F2A93B;
+    --amber-dim:#B8811F;
+    --navy:#12233B;
+    --line: rgba(245,243,236,0.14);
+    --line-strong: rgba(245,243,236,0.28);
+    --red:#E4572E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--pitch);
+    color:var(--chalk);
+    font-family:'Inter', sans-serif;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 90px);
+    pointer-events:none;
+    z-index:0;
+  }
+  .display{ font-family:'Bebas Neue', sans-serif; letter-spacing:0.03em; }
+  .mono{ font-family:'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  a{color:inherit;}
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 28px; position:relative; z-index:1;}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,61,46,0.86);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:64px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Bebas Neue', sans-serif; font-size:22px; letter-spacing:0.06em;}
+  .brand .dot{ width:9px; height:9px; border-radius:50%; background:var(--amber); box-shadow:0 0 10px var(--amber);}
+  nav ul{ display:flex; gap:16px; list-style:none; font-size:13px; font-weight:600; letter-spacing:0.02em; flex-wrap:wrap; }
+  nav a{ text-decoration:none; color:var(--chalk-dim); transition:color .2s; }
+  nav a:hover{ color:var(--amber); }
+  nav a.nav-active{ color:var(--amber); font-weight:700; position:relative; }
+  nav a.nav-active::after{ content:""; position:absolute; bottom:-4px; left:50%; transform:translateX(-50%); width:6px; height:6px; border-radius:50%; background:var(--amber); }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--line-strong); color:var(--chalk); font-size:22px; padding:4px 10px; border-radius:4px; cursor:pointer; }
+  nav ul.open{ display:flex !important; flex-direction:column; position:absolute; top:64px; left:0; right:0; background:rgba(11,61,46,0.96); backdrop-filter:blur(8px); padding:12px 28px 18px; gap:14px; border-bottom:1px solid var(--line); }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    padding:120px 0 90px;
+    position:relative;
+    border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(242,169,59,0.10), transparent 60%);
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:600;
+    color:var(--amber); letter-spacing:0.14em; text-transform:uppercase;
+    border:1px solid var(--amber-dim); padding:6px 12px; border-radius:100px;
+    margin-bottom:28px;
+  }
+  .eyebrow::before{ content:"●"; font-size:8px; }
+  h1.title{
+    font-size:clamp(56px, 11vw, 128px);
+    line-height:0.92;
+    text-transform:uppercase;
+  }
+  h1.title .sub{ display:block; color:var(--amber); }
+
+  .hero-grid{
+    margin-top:56px;
+    display:grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap:40px;
+    align-items:end;
+  }
+  .hero-copy p{ color:var(--chalk-dim); font-size:17px; max-width:46ch; }
+
+  /* Scoreboard readout - signature element */
+  .scoreboard{
+    background:var(--navy);
+    border:1px solid var(--line-strong);
+    border-radius:6px;
+    padding:26px 28px;
+    position:relative;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+  }
+  .scoreboard::before{
+    content:"BOTE TOTAL EN JUEGO";
+    display:block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px; letter-spacing:0.16em; color:var(--chalk-dim);
+    margin-bottom:10px;
+  }
+  .flap-row{ display:flex; gap:6px; }
+  .flap{
+    background:#0d1c30;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:4px;
+    width:56px; height:78px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:44px; font-weight:700;
+    color:var(--amber);
+    text-shadow:0 0 18px rgba(242,169,59,0.55);
+    position:relative;
+    animation: flick 900ms ease-out both;
+  }
+  .flap.suffix{ width:44px; font-size:30px; color:var(--chalk); text-shadow:none; }
+  .flap::after{
+    content:""; position:absolute; left:0; right:0; top:50%;
+    height:1px; background:rgba(0,0,0,0.5);
+  }
+  @keyframes flick{
+    0%{ transform: rotateX(90deg); opacity:0; }
+    60%{ transform: rotateX(-10deg); opacity:1; }
+    100%{ transform: rotateX(0); }
+  }
+  .flap:nth-child(1){animation-delay:0ms}
+  .flap:nth-child(2){animation-delay:70ms}
+  .flap:nth-child(3){animation-delay:140ms}
+  .flap:nth-child(4){animation-delay:210ms}
+  .scoreboard-note{ margin-top:14px; font-size:13px; color:var(--chalk-dim); }
+  .scoreboard-note b{ color:var(--chalk); }
+
+  .stat-strip{
+    display:flex; gap:0; margin-top:64px;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .stat-strip .stat{
+    flex:1; padding:22px 4px; text-align:center;
+    border-right:1px solid var(--line);
+  }
+  .stat-strip .stat:last-child{ border-right:none; }
+  .stat .n{ font-family:'Bebas Neue',sans-serif; font-size:40px; color:var(--amber); }
+  .stat .l{ font-size:12px; color:var(--chalk-dim); letter-spacing:0.08em; text-transform:uppercase; margin-top:2px;}
+
+  /* ---------- SECTION HEADERS ---------- */
+  section{ display:none; padding:100px 0; border-bottom:1px solid var(--line); }
+  section.active{ display:block; }
+  #inicio{ padding:0; border:none; }
+  .sec-head{ margin-bottom:52px; max-width:640px; }
+  .sec-head .tag{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--amber);
+    letter-spacing:0.14em; text-transform:uppercase; margin-bottom:12px; display:block;
+  }
+  .sec-head h2{ font-family:'Bebas Neue', sans-serif; font-size:clamp(34px,5vw,52px); text-transform:uppercase; line-height:1; }
+  .sec-head p{ color:var(--chalk-dim); margin-top:14px; font-size:16px; }
+
+  /* ---------- EL BOTE (breakdown) ---------- */
+  .bote-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .panel{
+    background:var(--navy);
+    border:1px solid var(--line-strong);
+    border-radius:6px;
+    padding:32px;
+  }
+  .panel-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:22px; padding-bottom:18px; border-bottom:1px dashed var(--line-strong); }
+  .panel-head h3{ font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:0.03em; }
+  .panel-head .amount{ font-family:'JetBrains Mono',monospace; font-size:26px; font-weight:700; color:var(--amber); }
+  .prize-row{ display:flex; align-items:center; gap:14px; padding:13px 0; border-bottom:1px solid var(--line); }
+  .prize-row:last-child{ border-bottom:none; }
+  .medal{ font-size:20px; width:28px; text-align:center; }
+  .prize-row .label{ flex:1; font-size:15px; color:var(--chalk-dim); }
+  .prize-row .value{ font-family:'JetBrains Mono',monospace; font-weight:700; font-size:17px; color:var(--chalk); }
+  .prize-row.win .value{ color:var(--amber); }
+
+  .primas-rule{ font-size:14px; color:var(--chalk-dim); padding:13px 0; border-bottom:1px solid var(--line); }
+  .primas-rule:last-child{ border-bottom:none; }
+  .primas-rule b{ color:var(--chalk); }
+  .primas-rule .max{ display:block; margin-top:4px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--amber-dim); }
+
+  .bote-total-bar{
+    margin-top:24px; display:flex; align-items:center; gap:16px;
+    background:rgba(242,169,59,0.06); border:1px solid var(--amber-dim);
+    border-radius:6px; padding:16px 22px;
+  }
+  .bote-total-bar .txt{ font-size:14px; color:var(--chalk-dim); flex:1; }
+  .bote-total-bar .val{ font-family:'JetBrains Mono',monospace; font-weight:700; font-size:20px; color:var(--amber); }
+
+  /* ---------- REGLAS ---------- */
+  .rules-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .rule-card{
+    border:1px solid var(--line-strong); border-radius:6px; padding:26px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    transition:border-color .2s, transform .2s;
+  }
+  .rule-card:hover{ border-color:var(--amber-dim); transform:translateY(-3px); }
+  .rule-card .num{ font-family:'Bebas Neue',sans-serif; font-size:34px; color:var(--amber); }
+  .rule-card h4{ font-size:15px; margin:10px 0 8px; text-transform:uppercase; letter-spacing:0.04em; }
+  .rule-card p{ font-size:14px; color:var(--chalk-dim); }
+  .rule-card .badge{
+    display:inline-block; margin-top:12px; font-family:'JetBrains Mono',monospace;
+    font-size:12px; color:var(--pitch); background:var(--amber); padding:3px 9px; border-radius:100px; font-weight:700;
+  }
+
+  /* ---------- CLASIFICACION ---------- */
+  .table-wrap{ border:1px solid var(--line-strong); border-radius:6px; overflow:hidden; }
+  table{ width:100%; border-collapse:collapse; }
+  thead th{
+    text-align:left; font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--chalk-dim);
+    background:var(--navy); padding:14px 20px; border-bottom:1px solid var(--line-strong);
+  }
+  thead th.num, tbody td.num{ text-align:right; }
+  tbody td{ padding:13px 20px; font-size:14px; border-bottom:1px solid var(--line); }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:nth-child(even){ background:rgba(255,255,255,0.02); }
+  tbody tr:hover{ background:rgba(242,169,59,0.06); }
+  td.jugador{ font-weight:600; white-space:normal; word-wrap:break-word; }
+  td.primas{ font-family:'JetBrains Mono',monospace; color:var(--amber); text-align:right; }
+  .estado{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--chalk-dim); }
+  .estado .dot{ width:7px; height:7px; border-radius:50%; background:var(--chalk-dim); }
+  .estado.pagado .dot{ background:#4ADE80; box-shadow:0 0 6px #4ADE80; }
+  .estado.pagado{ color:#4ADE80; }
+
+  /* ---------- PAGOS ---------- */
+  .pagos-summary{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:20px;
+    margin-bottom:40px;
+  }
+  .pagos-summary .card{
+    border:1px solid var(--line-strong); border-radius:6px; padding:22px 24px;
+    background:var(--navy);
+  }
+  .pagos-summary .card .n{ font-family:'Bebas Neue',sans-serif; font-size:38px; }
+  .pagos-summary .card .n.ok{ color:#4ADE80; }
+  .pagos-summary .card .n.warn{ color:var(--red); }
+  .pagos-summary .card .n.amb{ color:var(--amber); }
+  .pagos-summary .card .l{ font-size:12px; color:var(--chalk-dim); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+
+  .progress-track{
+    height:10px; border-radius:100px; background:rgba(255,255,255,0.08);
+    overflow:hidden; margin-top:14px; border:1px solid var(--line-strong);
+  }
+  .progress-fill{
+    height:100%; border-radius:100px;
+    background:linear-gradient(90deg, var(--amber-dim), var(--amber));
+  }
+  .progress-label{ display:flex; justify-content:space-between; font-size:12px; color:var(--chalk-dim); margin-top:8px; }
+  .progress-label b{ color:var(--amber); font-family:'JetBrains Mono',monospace; }
+
+  .pagos-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:22px; margin-top:36px; }
+  .pagos-col h3{
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.12em;
+    text-transform:uppercase; margin-bottom:14px; padding-bottom:12px;
+    border-bottom:1px solid var(--line-strong);
+  }
+  .pagos-col.ok h3{ color:#4ADE80; }
+  .pagos-col.warn h3{ color:var(--red); }
+  .player-row{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px; border-radius:6px; margin-bottom:8px;
+    background:var(--navy); border:1px solid var(--line);
+  }
+  .player-row .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .pagos-col.ok .player-row .dot{ background:#4ADE80; box-shadow:0 0 6px #4ADE80; }
+  .pagos-col.warn .player-row .dot{ background:var(--red); box-shadow:0 0 6px var(--red); }
+  .player-row .who{ flex:1; }
+  .player-row .name{ font-weight:600; font-size:14px; }
+  .player-row .team{ font-size:12px; color:var(--chalk-dim); }
+  .player-row .amount{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--chalk-dim); }
+  .pagos-col.ok .player-row .amount{ color:#4ADE80; }
+  .pagos-col.warn .player-row .amount{ color:var(--red); }
+
+  /* ---------- JORNADAS ---------- */
+  .jornada-banner{
+    display:flex; align-items:center; gap:28px; flex-wrap:wrap;
+    background:var(--navy); border:1px solid var(--line-strong); border-radius:6px;
+    padding:26px 30px; margin-bottom:36px;
+  }
+  .jornada-banner .big{
+    font-family:'Bebas Neue',sans-serif; font-size:52px; color:var(--amber); line-height:1;
+  }
+  .jornada-banner .big span{ font-size:22px; color:var(--chalk-dim); }
+  .jornada-banner .sep{ width:1px; height:40px; background:var(--line-strong); }
+  .jornada-banner .info{ font-size:13px; color:var(--chalk-dim); }
+  .jornada-banner .info b{ color:var(--chalk); font-family:'JetBrains Mono',monospace; }
+
+  .jornadas-note{ font-size:13px; color:var(--chalk-dim); margin-bottom:20px; }
+  .jornadas-note b{ color:var(--amber-dim); }
+
+  .jornadas-scroll{
+    overflow-x:auto; border:1px solid var(--line-strong); border-radius:6px;
+    -webkit-overflow-scrolling:touch;
+  }
+  table.jornadas-table{ border-collapse:collapse; width:max-content; min-width:100%; }
+  table.jornadas-table th, table.jornadas-table td{
+    border-bottom:1px solid var(--line); border-right:1px solid var(--line);
+  }
+  table.jornadas-table thead th{
+    background:var(--navy); font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    color:var(--chalk-dim); letter-spacing:0.04em; text-transform:uppercase;
+    padding:10px 4px; text-align:center; white-space:nowrap;
+  }
+  table.jornadas-table tbody td{ padding:0; text-align:center; }
+  table.jornadas-table tbody tr:nth-child(even) td{ background:rgba(255,255,255,0.02); }
+  th.col-jugador, td.col-jugador{
+    position:sticky; left:0; z-index:3;
+    background:var(--navy) !important;
+    text-align:left !important; padding:10px 16px !important;
+    font-size:13px; font-weight:600; white-space:normal; word-break:break-word;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.35);
+  }
+  td.col-jugador .mgr{
+    display:block; font-family:'JetBrains Mono',monospace; font-weight:400;
+    font-size:10.5px; color:var(--chalk-dim); text-transform:uppercase; letter-spacing:0.03em;
+    margin-top:2px;
+  }
+  thead th.col-jugador{ z-index:4; }
+  th.col-primas, td.col-primas{
+    position:sticky; right:0; z-index:3;
+    background:#3a2a0f !important;
+    box-shadow: -2px 0 6px rgba(0,0,0,0.35);
+  }
+  thead th.col-primas{ background:var(--amber-header, var(--amber-dim)) !important; color:#fff; z-index:4; }
+  td.col-primas{ font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--amber); font-size:13px; padding:10px 12px !important; }
+
+  input.jornada-input{
+    width:34px; height:34px; text-align:center; background:transparent; border:none;
+    color:var(--chalk); font-family:'JetBrains Mono',monospace; font-size:12px;
+    -moz-appearance:textfield;
+  }
+  input.jornada-input::-webkit-outer-spin-button, input.jornada-input::-webkit-inner-spin-button{
+    -webkit-appearance:none; margin:0;
+  }
+  input.jornada-input:focus{ outline:none; background:rgba(242,169,59,0.18); }
+  input.jornada-input.r1{ color:var(--amber); font-weight:700; }
+  input.jornada-input.r2, input.jornada-input.r3{ color:#93C5FD; font-weight:700; }
+
+  /* ---------- NORMAS (acordeon) ---------- */
+  .normas-callout{
+    display:flex; gap:14px; align-items:flex-start;
+    background:rgba(228,87,46,0.08); border:1px solid rgba(228,87,46,0.4);
+    border-radius:6px; padding:18px 22px; margin-bottom:36px;
+  }
+  .normas-callout .ico{ font-size:20px; line-height:1; }
+  .normas-callout p{ font-size:14px; color:var(--chalk-dim); }
+  .normas-callout b{ color:var(--chalk); }
+
+  .normas-list{ display:flex; flex-direction:column; gap:12px; }
+  details.normas-item{
+    border:1px solid var(--line-strong); border-radius:6px;
+    background:var(--navy); overflow:hidden;
+  }
+  details.normas-item summary{
+    cursor:pointer; list-style:none; padding:18px 22px;
+    display:flex; align-items:center; gap:14px;
+    font-family:'Bebas Neue', sans-serif; font-size:19px; letter-spacing:0.02em;
+    -webkit-tap-highlight-color:transparent;
+  }
+  details.normas-item summary::-webkit-details-marker{ display:none; }
+  details.normas-item summary .emoji{ font-size:18px; }
+  details.normas-item summary .chev{
+    margin-left:auto; color:var(--amber); font-family:'JetBrains Mono',monospace;
+    font-size:14px; transition:transform .2s ease;
+  }
+  details.normas-item[open] summary .chev{ transform:rotate(180deg); }
+  details.normas-item[open] summary{ border-bottom:1px solid var(--line); }
+  .normas-body{ padding:6px 22px 20px 54px; }
+  .normas-body ul{ display:flex; flex-direction:column; gap:11px; }
+  .normas-body li{
+    font-size:14px; line-height:1.55; color:var(--chalk-dim);
+    padding-left:16px; position:relative;
+  }
+  .normas-body li::before{ content:"—"; position:absolute; left:0; color:var(--amber-dim); }
+  .normas-body li b{ color:var(--chalk); }
+  .normas-body .lead{ font-size:13px; color:var(--chalk-dim); margin-bottom:10px; font-style:italic; }
+
+  /* ---------- FOOTER ---------- */
+  footer{ padding:50px 0; }
+  footer .wrap{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  footer .brand{ font-size:16px; }
+  footer p{ font-size:13px; color:var(--chalk-dim); }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 860px){
+    nav ul{ display:none; }
+    .nav-toggle{ display:block; }
+    .hero-grid{ grid-template-columns:1fr; }
+    .bote-grid{ grid-template-columns:1fr; }
+    .rules-grid{ grid-template-columns:1fr; }
+    .stat-strip{ flex-wrap:wrap; }
+    .stat-strip .stat{ flex:1 1 50%; border-bottom:1px solid var(--line); }
+    table{ font-size:13px; }
+    thead th, tbody td{ padding:10px 12px; }
+    .pagos-summary{ grid-template-columns:1fr; }
+    .pagos-grid{ grid-template-columns:1fr; }
+    .jornada-banner{ flex-direction:column; align-items:flex-start; gap:14px; }
+    .jornada-banner .sep{ display:none; }
+    .jornada-select{ width:100%; }
+    .jornadas-scroll.mobile{ display:block; }
+    .jornadas-scroll.desktop{ display:none; }
+  }
+  @media (min-width: 861px){
+    .jornadas-scroll.mobile{ display:none; }
+    .jornadas-scroll.desktop{ display:block; }
+  }
+
+  /* ---------- MOBILE JORNADA CARDS ---------- */
+  .jornada-card{
+    background:var(--navy); border:1px solid var(--line-strong); border-radius:6px; padding:14px 18px;
+    display:flex; align-items:center; gap:12px; margin-bottom:10px;
+  }
+  .jornada-card .pos{
+    font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--amber); width:40px; text-align:center; flex-shrink:0;
+  }
+  .jornada-card .info{ flex:1; min-width:0; }
+  .jornada-card .info .team{ font-weight:600; font-size:14px; word-break:break-word; }
+  .jornada-card .info .mgr{ font-size:12px; color:var(--chalk-dim); margin-top:2px; }
+  .jornada-card .pri{ font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:var(--amber); flex-shrink:0; text-align:right; }
+  .jornada-card .pri span{ display:block; font-size:10px; color:var(--chalk-dim); font-weight:400; }
+  /* ---------- JORNADA CARDS (desktop + mobile) ---------- */
+  .jornadas-cards{ display:flex; flex-direction:column; gap:8px; }
+  .jornada-row{ display:flex; align-items:center; background:var(--navy); border:1px solid var(--line-strong); border-radius:6px; padding:12px 16px; transition:border-color .2s; }
+  .jornada-row:hover{ border-color:var(--amber-dim); }
+  .jornada-row .pos{ font-family:'Bebas Neue',sans-serif; font-size:24px; color:var(--amber); width:36px; text-align:center; flex-shrink:0; }
+  .jornada-row .pos.r2,.jornada-row .pos.r3{ color:#93C5FD; }
+  .jornada-row .info{ flex:1; min-width:0; display:flex; align-items:center; gap:10px; }
+  .jornada-row .info .team{ font-weight:600; font-size:14px; }
+  .jornada-row .info .mgr{ font-size:11px; color:var(--chalk-dim); }
+  .jornada-row .pri{ font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; color:var(--amber); flex-shrink:0; text-align:right; min-width:70px; }
+  .jornada-row .pri small{ display:block; font-size:10px; color:var(--chalk-dim); font-weight:400; }
+  .jornada-row input.pos-input{ width:40px; text-align:center; background:var(--pitch-dark); border:1px solid var(--line-strong); border-radius:4px; color:var(--chalk); font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; padding:4px; outline:none; }
+  .jornada-row input.pos-input:focus{ border-color:var(--amber); }
+  @media (max-width:860px){ .jornada-row{ padding:10px 12px; } .jornada-row .pri{ font-size:15px; min-width:60px; } }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .flap{ animation:none; }
+    .rule-card{ transition:none; }
+  }
+
+  .jornada-select{ background:var(--navy); color:var(--chalk); border:1px solid var(--amber-dim); border-radius:6px; padding:8px 32px 8px 14px; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23F2A93B' stroke-width='2' fill='none'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; transition:border-color .2s; }
+  .jornada-select:hover,.jornada-select:focus{ border-color:var(--amber); outline:none; }
+  .jornada-select option{ background:var(--navy); color:var(--chalk); }
+
+  :focus-visible{ outline:2px solid var(--amber); outline-offset:3px; }
+
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- LOGIN ---------- */
+  .login-trigger{ background:none; border:1px solid var(--line-strong); color:var(--chalk-dim); font-size:12px; padding:4px 10px; border-radius:4px; cursor:pointer; font-family:'Inter',sans-serif; }
+  .login-trigger:hover{ color:var(--amber); border-color:var(--amber-dim); }
+  .login-modal{ display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; }
+  .login-modal.open{ display:flex; }
+  .login-box{ background:var(--navy); border:1px solid var(--line-strong); border-radius:8px; padding:36px; width:320px; max-width:90vw; }
+  .login-box h3{ font-family:'Bebas Neue',sans-serif; font-size:24px; margin-bottom:6px; }
+  .login-box p{ font-size:13px; color:var(--chalk-dim); margin-bottom:20px; }
+  .login-box input{ width:100%; background:var(--pitch-dark); border:1px solid var(--line-strong); color:var(--chalk); padding:10px 14px; border-radius:5px; font-size:14px; margin-bottom:12px; font-family:'JetBrains Mono',monospace; outline:none; }
+  .login-box input:focus{ border-color:var(--amber); }
+  .login-box .btn{ width:100%; background:var(--amber); color:var(--navy); border:none; padding:10px; border-radius:5px; font-weight:700; font-size:14px; cursor:pointer; font-family:'Inter',sans-serif; }
+  .login-box .btn:hover{ background:var(--amber-dim); }
+  .login-box .err{ font-size:12px; color:var(--red); margin-top:8px; display:none; }
+  .admin-badge{ display:none; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--amber-dim); border:1px solid var(--amber-dim); padding:1px 6px; border-radius:100px; }
+  .admin-active .admin-badge{ display:inline; }
+  .admin-only{ display:none; }
+  .admin-active .admin-only{ display:inline-block; }
+  .save-btn{ display:none; font-family:'JetBrains Mono',monospace; font-size:11px; background:var(--amber); color:var(--navy); border:none; padding:4px 12px; border-radius:4px; cursor:pointer; font-weight:700; }
+  .admin-active .save-btn{ display:inline-block; }
+.player-row .amount .det{ display:block; font-size:11px; color:var(--amber-dim); margin-top:2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>El mundo para-lelo <span class="admin-badge">ADMIN</span></div>
+    <ul class="nav-links">
+      <li><a href="#inicio" class="nav-inicio nav-active">Inicio</a></li>
+      <li><a href="#bote" class="nav-bote">Bote</a></li>
+      <li><a href="#reglas" class="nav-reglas">Reglas</a></li>
+      <li><a href="#normas" class="nav-normas">Normas</a></li>
+      <li><a href="#jornadas" class="nav-jornadas">Jornadas</a></li>
+      <li><a href="#clasificacion" class="nav-clasificacion">Clasif.</a></li>
+      <li><a href="#pagos" class="nav-pagos">Pagos</a></li>
+      <li><a href="#" id="login-trigger" style="color:var(--amber-dim);font-size:12px;">👤</a></li>
+      <li class="admin-only"><a href="#" id="logout-trigger" style="color:var(--red);font-size:12px;">↩</a></li>
+      <li class="admin-only"><a href="#" id="save-trigger" style="color:var(--amber);font-size:12px;">💾</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Menú">☰</button>
+  </div>
+</nav>
+
+<section id="inicio">
+  <header class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Temporada 26/27 · 38 jornadas</span>
+      <h1 class="title">EL MUNDO<span class="sub">PARA-LELO</span></h1>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p>14 jugadores, un bote común y una liga que se decide jornada a jornada. Aquí vive el reparto de premios, las reglas de las primas y quién manda en la clasificación.</p>
+        </div>
+
+        <div class="scoreboard">
+          <div class="flap-row">
+            <div class="flap">5</div>
+            <div class="flap">3</div>
+            <div class="flap">0</div>
+            <div class="flap suffix">€</div>
+          </div>
+          <p class="scoreboard-note"><b>378 €</b> en premios fijos + <b>152 €</b> en primas por jornada.</p>
+        </div>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat"><div class="n">14</div><div class="l">Jugadores</div></div>
+        <div class="stat"><div class="n">38</div><div class="l">Jornadas</div></div>
+        <div class="stat"><div class="n">3</div><div class="l">Premios fijos</div></div>
+        <div class="stat"><div class="n">530€</div><div class="l">Bote total</div></div>
+      </div>
+    </div>
+  </header>
+</section>
+
+<section id="bote">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Reparto</span>
+      <h2>El bote se juega entero</h2>
+      <p>14 jugadores: 13 ponen 40 € cada uno y 1 pone 10 € + el premium (30 €). Entre premios fijos y primas por jornada se reparte el bote completo: nada se queda por el camino.</p>
+    </div>
+
+    <div class="bote-grid">
+      <div class="panel reveal">
+        <div class="panel-head">
+          <h3>Premios fijos</h3>
+          <span class="amount">378€</span>
+        </div>
+        <div class="prize-row win"><span class="medal">🥇</span><span class="label">1.º clasificado</span><span class="value">200 €</span></div>
+        <div class="prize-row win"><span class="medal">🥈</span><span class="label">2.º clasificado</span><span class="value">120 €</span></div>
+        <div class="prize-row win"><span class="medal">🥉</span><span class="label">3.º clasificado</span><span class="value">58 €</span></div>
+      </div>
+
+      <div class="panel reveal">
+        <div class="panel-head">
+          <h3>Primas todas las jornadas</h3>
+          <span class="amount">152€</span>
+        </div>
+        <div class="primas-rule"><b>1.º de la jornada</b> se lleva 2 € cada semana.<span class="max">Máximo temporada: 76 € (38 jornadas)</span></div>
+        <div class="primas-rule"><b>2.º de la jornada</b> se lleva 1 € cada semana.<span class="max">Máximo temporada: 38 €</span></div>
+        <div class="primas-rule"><b>3.º de la jornada</b> se lleva 1 € cada semana.<span class="max">Máximo temporada: 38 €</span></div>
+      </div>
+    </div>
+
+    <div class="bote-total-bar reveal">
+      <span class="txt">378 € en premios fijos + 152 € en primas por jornada</span>
+      <span class="val">= 530 € repartidos</span>
+    </div>
+  </div>
+</section>
+
+<section id="reglas">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Cómo se juega</span>
+      <h2>Reglas de las primas</h2>
+      <p>Cada jornada reparte su propio premio, aparte de la clasificación general. Así hay algo en juego semana tras semana, no solo al final de temporada.</p>
+    </div>
+
+    <div class="rules-grid">
+      <div class="rule-card reveal">
+        <div class="num">01</div>
+        <h4>Se puntúa cada jornada</h4>
+        <p>Al cerrar cada jornada se mira quién ha quedado 1.º, 2.º y 3.º entre los 14 jugadores.</p>
+        <span class="badge">Cada semana</span>
+      </div>
+      <div class="rule-card reveal">
+        <div class="num">02</div>
+        <h4>Se suma automáticamente</h4>
+        <p>Esos euros se van acumulando en la columna de PRIMAS de cada jugador, jornada a jornada. Si una jornada tiene partidos aplazados, las primas no se asignan hasta que la jornada esté completamente terminada.</p>
+        <span class="badge">Jornada completa</span>
+      </div>
+      <div class="rule-card reveal">
+        <div class="num">03</div>
+        <h4>Se cobra a final de temporada</h4>
+        <p>Al terminar las 38 jornadas, el total acumulado en PRIMAS se paga junto con los premios fijos de la clasificación general.</p>
+        <span class="badge">Jornada 38</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="normas">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Normativa</span>
+      <h2>Normas de la Liga Biwenger</h2>
+      <p>Recordatorio de las normas y configuración de la liga para que estén claras desde el inicio.</p>
+    </div>
+
+    <div class="normas-callout">
+      <span class="ico">🚨</span>
+      <p>Estas reglas quedan establecidas al comienzo de la temporada. <b>Cualquier modificación, excepción o situación no contemplada deberá someterse a votación y ser aceptada por unanimidad.</b> Si una sola persona vota en contra, la medida no se aplicará.</p>
+    </div>
+
+    <div class="normas-list">
+      <details class="normas-item reveal">
+        <summary><span class="emoji">🚨</span>Normas generales<span class="chev">&#9660;</span></summary>
+        <div class="normas-body">
+          <ul>
+            <li>No se aceptarán <b>traspasos entre mánagers</b> durante todo el día en el que comience una jornada.</li>
+            <li>No se permiten <b>pactos, acuerdos ni fichajes</b> realizados con el objetivo de beneficiar a otro mánager, alterar la competición o perjudicar al resto.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="normas-item reveal">
+        <summary><span class="emoji">💰</span>Inicio y plantillas<span class="chev">&#9660;</span></summary>
+        <div class="normas-body">
+          <ul>
+            <li>Todos comenzamos con <b>40.000.000 €</b> y sin jugadores.</li>
+            <li>Cada mánager podrá tener un <b>máximo de 20 jugadores</b>, evitando que una sola persona acapare el mercado y obligándonos a seleccionar mejor la plantilla.</li>
+            <li>Al disponer de la modalidad Premium, se permiten las <b>alineaciones y formaciones extra</b> disponibles en la aplicación.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="normas-item reveal">
+        <summary><span class="emoji">📅</span>Jornadas partidas o con partidos aplazados<span class="chev">&#9660;</span></summary>
+        <div class="normas-body">
+          <ul>
+            <li>Se utilizará la opción <b>"Jornada única, entregar puntos y abonos tras cada fase —recálculo—"</b>, como se ha hecho habitualmente.</li>
+            <li>Cuando una jornada se dispute en varias fases, se entregarán puntos y determinados abonos después de cada fase. Cuando se complete la jornada, se realizará el <b>recálculo definitivo</b> y se entregarán los abonos pendientes.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="normas-item reveal">
+        <summary><span class="emoji">🔄</span>Suplentes y cambios<span class="chev">&#9660;</span></summary>
+        <div class="normas-body">
+          <ul>
+            <li>Se permite el uso de <b>suplentes</b>. Si un titular no disputa ningún minuto, entrará automáticamente el suplente de su misma posición.</li>
+            <li>Se permite <b>un cambio manual</b> durante la jornada. Se podrá sacar a un jugador, aunque ya haya jugado, e introducir a otro que todavía no haya disputado ningún minuto.</li>
+            <li>Los cambios automáticos realizados mediante los suplentes <b>no consumen</b> el cambio manual disponible.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="normas-item reveal">
+        <summary><span class="emoji">🎯</span>Ariete y capitán<span class="chev">&#9660;</span></summary>
+        <div class="normas-body">
+          <ul>
+            <li>Se permite seleccionar un <b>ariete</b>. Si el jugador elegido marca al menos un gol, obtiene <b>3 puntos adicionales</b>.</li>
+            <li>El bonus es siempre de <b>3 puntos</b>, independientemente de que marque uno o varios goles.</li>
+            <li>No se permite el uso de <b>capitán</b>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="normas-item reveal">
+        <summary><span class="emoji">🛒</span>Mercado y pujas<span class="chev">&#9660;</span></summary>
+        <div class="normas-body">
+          <ul>
+            <li>Aparecerán <b>14 jugadores</b> en el mercado y permanecerán disponibles durante <b>1 día</b>.</li>
+            <li>La puja máxima será el <b>saldo disponible más el 25 % del valor del equipo</b>.</li>
+            <li>Una vez finalizada una puja, se mostrarán en el tablón <b>todas las ofertas</b> realizadas, no únicamente la ganadora.</li>
+            <li>Las ofertas por jugadores del mercado o de otros mánagers deberán ser siempre <b>iguales o superiores a su valor de mercado</b>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="normas-item reveal">
+        <summary><span class="emoji">🔐</span>Cláusulas<span class="chev">&#9660;</span></summary>
+        <div class="normas-body">
+          <ul>
+            <li>Las cláusulas de rescisión estarán <b>activadas</b>.</li>
+            <li>Al fichar a un jugador, su cláusula inicial será del <b>130 % del precio pagado</b>.</li>
+            <li>Las cláusulas se <b>desactivarán 48 horas antes</b> del comienzo de cada jornada. Por ejemplo, si la jornada comienza el viernes a las 21:00, quedarán desactivadas desde el miércoles a las 21:00. Así, el mánager afectado por cláusulas anteriores dispondrá de dos ventanas de mercado para reconstruir su plantilla.</li>
+            <li>Un jugador tendrá su cláusula <b>bloqueada durante 14 días</b> después de ser comprado.</li>
+            <li>El incremento de la cláusula será del <b>200 % del dinero invertido</b>: si se invierte 1.000.000 €, la cláusula aumentará en 2.000.000 €.</li>
+            <li>Se podrá <b>recuperar el 100 %</b> del dinero invertido en aumentar una cláusula, sin penalización.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="normas-item reveal">
+        <summary><span class="emoji">💵</span>Primas por jornada<span class="chev">&#9660;</span></summary>
+        <div class="normas-body">
+          <ul>
+            <li>Abono fijo por finalizar la jornada: <b>300.000 €</b>.</li>
+            <li>Abono por cada punto conseguido: <b>20.000 €</b>.</li>
+            <li>Por cada jugador incluido en el once ideal: <b>600.000 €</b>.</li>
+            <li>Por haber alineado al MVP de la jornada: <b>900.000 €</b>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="normas-item reveal">
+        <summary><span class="emoji">📊</span>Primas por posición inversa<span class="chev">&#9660;</span></summary>
+        <div class="normas-body">
+          <p class="lead">Para ayudar a que los últimos clasificados de cada jornada no se descuelguen:</p>
+          <ul>
+            <li><b>14.º clasificado:</b> 800.000 €.</li>
+            <li><b>13.º clasificado:</b> 600.000 €.</li>
+            <li><b>12.º clasificado:</b> 400.000 €.</li>
+            <li><b>11.º clasificado:</b> 200.000 €.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="jornadas">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Marcador · Jornada a jornada</span>
+      <h2>¿Por dónde vamos?</h2>
+      <p>Posiciones de cada jugador en cada jornada. Las primas se calculan automáticamente.</p>
+    </div>
+
+    <div class="jornada-banner reveal">
+      <div class="big" id="jb-actual">0 <span>/ 38</span></div>
+      <div class="sep"></div>
+      <div class="info">Jornada actual<br><b id="jb-label">Aún sin empezar</b></div>
+      <div class="sep"></div>
+      <div class="info">Primas repartidas<br><b id="jb-primas">0€ / 152€</b></div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 mb-3 reveal flex-wrap">
+      <p class="jornadas-note mb-0">🥇 <b>1.º</b> = 2€ &nbsp;·&nbsp; 🥈🥉 <b>2.º y 3.º</b> = 1€ cada uno</p>
+      <select id="jornada-filter" class="jornada-select">
+        <option value="all">Todas las jornadas</option>
+      </select>
+    </div>
+
+    <div class="jornadas-cards reveal" id="jornadas-cards"></div>
+  </div>
+</section>
+
+<section id="clasificacion">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Biwenger · Datos reales</span>
+      <h2>Clasificación por puntos</h2>
+      <p id="biwenger-updated">Datos oficiales de la liga en Biwenger.</p>
+    </div>
+
+    <div class="table-wrap reveal">
+      <table>
+        <thead>
+          <tr>
+            <th class="num">#</th>
+            <th>Equipo</th>
+            <th class="num">Puntos</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-biwenger">
+          <tr><td colspan="3" style="text-align:center; padding:40px; color:var(--chalk-dim);">No hay datos disponibles.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="pagos">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Cuotas</span>
+      <h2>Quién ha pagado</h2>
+      <p>Estado de la cuota de entrada a la liga (40 € por jugador, o 10 € + premium en el caso especial).</p>
+    </div>
+
+    <div class="pagos-summary reveal">
+      <div class="card">
+        <div class="n ok" id="pg-pagados">10/14</div>
+        <div class="l">Jugadores al día</div>
+      </div>
+      <div class="card">
+        <div class="n warn" id="pg-pendientes">4</div>
+        <div class="l">Pendientes de pago</div>
+      </div>
+      <div class="card">
+        <div class="n amb" id="pg-recaudado">380€ <span style="font-size:18px;color:var(--chalk-dim)">/ 530€</span></div>
+        <div class="l">Recaudado</div>
+        <div class="progress-track"><div class="progress-fill" id="pg-fill" style="width:0%"></div></div>
+        <div class="progress-label"><span>Bote actual</span><b id="pg-restante">150€ por cobrar</b></div>
+      </div>
+    </div>
+
+    <div class="pagos-grid">
+      <div class="pagos-col ok reveal">
+        <h3>✓ Pagado</h3>
+        <div id="lista-pagados"></div>
+      </div>
+      <div class="pagos-col warn reveal">
+        <h3>⚠ Falta por pagar</h3>
+        <div id="lista-pendientes"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>El mundo para-lelo</div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <button class="save-btn" id="save-btn-footer" title="Guardar cambios">💾 Guardar</button>
+      <p>Temporada 26/27 · 14 jugadores · 38 jornadas</p>
+    </div>
+  </div>
+</footer>
+
+<div class="login-modal" id="login-modal">
+  <div class="login-box">
+    <h3>Acceso Admin</h3>
+    <p>Introduce tus credenciales para editar.</p>
+    <input type="text" id="login-user" placeholder="Usuario">
+    <input type="password" id="login-pass" placeholder="Contraseña">
+    <button class="btn" id="login-btn">Entrar</button>
+    <p class="err" id="login-err">Credenciales incorrectas</p>
+  </div>
+</div>
+
+<script>
+// --- Auth ---
+  const KV_WORKER = 'https://comunio-kv.garciamartin-manuel-mg.workers.dev';
+  const REPO = 'mgarciama/comunio-liga';
+  const ADMIN_USER = '@admin', ADMIN_PASS = 'Europa001@';
+  let isAdmin = sessionStorage.getItem('comunio_admin') === '1';
+  let dirty = false; // cambios sin guardar
+
+  function updateAdminUI(){
+    document.body.classList.toggle('admin-active', isAdmin);
+    const lt = document.getElementById('login-trigger');
+    if(isAdmin){
+      lt.textContent = '👑'; lt.style.color = 'var(--amber)';
+    } else {
+      lt.textContent = '👤'; lt.style.color = 'var(--amber-dim)';
+    }
+  }
+  updateAdminUI();
+
+  // Login trigger
+  document.getElementById('login-trigger').addEventListener('click', e => {
+    e.preventDefault();
+    if(isAdmin) return;
+    document.getElementById('login-modal').classList.add('open');
+  });
+
+  // Logout trigger
+  document.getElementById('logout-trigger').addEventListener('click', e => {
+    e.preventDefault();
+    doLogout();
+  });
+
+  function doLogout(){
+    isAdmin = false; sessionStorage.removeItem('comunio_admin'); dirty = false;
+    updateAdminUI(); renderAll();
+  }
+
+  // Save trigger
+  document.getElementById('save-trigger').addEventListener('click', e => {
+    e.preventDefault();
+    publicarCambios();
+  });
+  document.getElementById('save-btn-footer').addEventListener('click', publicarCambios);
+
+  // Login modal
+  document.getElementById('login-modal').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('open'); });
+  document.getElementById('login-btn').addEventListener('click', () => {
+    const u = document.getElementById('login-user').value, p = document.getElementById('login-pass').value;
+    if(u === ADMIN_USER && p === ADMIN_PASS){
+      isAdmin = true; sessionStorage.setItem('comunio_admin', '1'); dirty = false;
+      document.getElementById('login-modal').classList.remove('open');
+      document.getElementById('login-user').value = ''; document.getElementById('login-pass').value = '';
+      document.getElementById('login-err').style.display = 'none';
+      updateAdminUI(); renderAll();
+    } else {
+      document.getElementById('login-err').style.display = 'block';
+    }
+  });
+  document.querySelectorAll('#login-user,#login-pass').forEach(el => {
+    el.addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('login-btn').click(); });
+  });
+
+  // --- GitHub sync ---
+  function getToken(){ return localStorage.getItem('comunio_gh_token'); }
+
+  async function ghSave(path, content){
+    let token = getToken();
+    if(!token){
+      token = prompt('🔐 GitHub Personal Access Token:\n\nCrealo en GitHub → Settings → Developer settings → Tokens (classic) → Generate\nMarca el scope "repo" y copia el token aquí:');
+      if(!token) return false;
+      localStorage.setItem('comunio_gh_token', token);
+    }
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2))));
+    const url = `https://api.github.com/repos/${REPO}/contents/${path}`;
+    let sha = null;
+    try{ const r = await fetch(url, { headers: { Authorization: 'Bearer '+token } }); if(r.ok) sha = (await r.json()).sha; }catch(e){}
+    const body = { message: 'Update ' + path, content: encoded }; if(sha) body.sha = sha;
+const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer '+token, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if(!res.ok){ const e = await res.json(); console.error('ghSave error:', e); alert('Error al guardar '+path+': '+(e.message||res.status)+'\n\nVerifica que el token tenga scope "repo".'); if(res.status===401) localStorage.removeItem('comunio_gh_token'); return false; }
+    console.log('ghSave OK:', path);
+    return true;
+  }
+
+  async function publicarCambios(){
+    const btn1 = document.getElementById('save-trigger');
+    const btn2 = document.getElementById('save-btn-footer');
+
+    // Validar posiciones unicas
+    for(let j = 0; j < NUM_JORNADAS; j++){
+      const vals = ranks.map(row => row[j]).filter(v => v !== null && v !== undefined);
+      if(vals.length < 2) continue;
+      for(let n = 1; n <= 14; n++){
+        if(vals.filter(v => v === n).length > 1){
+          alert('⚠ Jornada '+(j+1)+': posición '+n+' repetida.'); return;
+        }
+      }
+    }
+
+    saveRanks(); savePagos(); dirty = false;
+    [btn1, btn2].forEach(b => { if(b) b.textContent = '⏳...'; });
+
+    try {
+      const res = await fetch(KV_WORKER, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jornadas: ranks, pagos })
+      });
+      if(!res.ok) throw new Error('Error '+res.status);
+      [btn1, btn2].forEach(b => { if(b) b.textContent = '✅'; });
+    } catch(e){
+      [btn1, btn2].forEach(b => { if(b) b.textContent = '❌'; });
+      alert('Error: '+e.message);
+    }
+    setTimeout(() => { [btn1, btn2].forEach(b => { if(b) b.textContent = '💾 Guardar'; }); }, 2000);
+  }
+
+  async function loadFromRepo(path){
+    try{ const r = await fetch(`https://raw.githubusercontent.com/${REPO}/main/${path}`); if(!r.ok) return null; return await r.json(); }catch{ return null; }
+  }
+
+  // Datos base
+
+  // --- Menú móvil ---
+  document.querySelector('.nav-toggle').addEventListener('click', function(){
+    document.querySelector('nav ul').classList.toggle('open');
+  });
+  // Default: mostrar inicio
+  document.getElementById('inicio').classList.add('active');
+// Navegación entre secciones
+  document.querySelectorAll('nav a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const href = a.getAttribute('href');
+      if(href === '#') return; // Admin/Salir/Guardar links
+      const target = document.querySelector(href);
+      if(!target) return;
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      target.classList.add('active');
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelector('nav ul').classList.remove('open');
+      // Highlight active menu item
+      document.querySelectorAll('nav a[href^="#"]').forEach(l => l.classList.remove('nav-active'));
+      a.classList.add('nav-active');
+      if(href === '#jornadas') renderJornadaCards();
+      if(href === '#pagos') renderPagos();
+    });
+  });
+  // Highlight inicio por defecto
+  document.querySelector('nav a[href="#inicio"]').classList.add('nav-active');
+
+  const PLAYERS = [
+    {nombre:"Jose Negro",  equipo:"el maki Roldan",            pagado:true,  cuota:"40€", biwengerId:2213278},
+    {nombre:"Harryson",    equipo:"Gryffindor",                pagado:true,  cuota:"40€", biwengerId:2214626},
+    {nombre:"Tary",        equipo:"Los Carrinton FC",          pagado:false, cuota:"10€", biwengerId:2213283},
+    {nombre:"Gaspar",      equipo:"Los Reyes de Europa C.F",   pagado:true,  cuota:"40€", biwengerId:9990906},
+    {nombre:"Arroyo",      equipo:"Turbanera",                 pagado:true,  cuota:"40€", biwengerId:2216723},
+    {nombre:"Charli",      equipo:"Fermux",                    pagado:false, cuota:"20€", biwengerId:2217630},
+    {nombre:"Manolillo",   equipo:"Nolillo2️⃣2️⃣",              pagado:true,  cuota:"40€", biwengerId:2213276},
+    {nombre:"Tanke",       equipo:"Sonámbulos Hermanos UF",    pagado:false, cuota:"0€", biwengerId:12595114},
+    {nombre:"Enrique",     equipo:"Oportopor",                 pagado:true,  cuota:"10€", biwengerId:2213275},
+    {nombre:"Jaime",       equipo:"Luis de la Fuente",         pagado:true,  cuota:"40€", biwengerId:13946856},
+    {nombre:"Osquillar",   equipo:"la makina",                 pagado:true,  cuota:"40€", biwengerId:13949428},
+    {nombre:"Javi",        equipo:"Bayer de Los Caídos FC",    pagado:true,  cuota:"40€", biwengerId:13955595},
+    {nombre:"Borja",       equipo:"MouTeam",                   pagado:true,  cuota:"40€", biwengerId:13975535},
+    {nombre:"Alvaro",      equipo:"DIEGO ARMANDO MARADONA",    pagado:true,  cuota:"40€", biwengerId:13965613},
+  ];
+
+  const NUM_JORNADAS = 38;
+  const STORAGE_KEY = 'comunio_jornadas_v1';
+
+  function loadRanks(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed) && parsed.length === PLAYERS.length) return parsed;
+      }
+    }catch(e){ /* localStorage no disponible: seguimos con datos vacios */ }
+    return PLAYERS.map(() => Array(NUM_JORNADAS).fill(null));
+  }
+  function saveRanks(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(ranks)); }catch(e){ /* modo privado, no pasa nada */ }
+  }
+
+  let ranks = loadRanks();
+
+  function computePrimas(i){
+    let total = 0;
+    for(const r of ranks[i]){
+      if(r === 1) total += 2;
+      else if(r === 2 || r === 3) total += 1;
+    }
+    return total;
+  }
+  // Prima otorgada en una jornada concreta (2€ 1º, 1€ 2º/3º, 0€ resto)
+  function primaJornada(i, j){
+    const r = ranks[i] && ranks[i][j];
+    if(r === 1) return 2;
+    if(r === 2 || r === 3) return 1;
+    return 0;
+  }
+  function computeJornadaActual(){
+    let last = 0;
+    for(let j = 0; j < NUM_JORNADAS; j++){
+      if(ranks.some(row => row[j] !== null && row[j] !== undefined)) last = j + 1;
+    }
+    return last;
+  }
+
+  // --- Construir jornadas (cards) ---
+  const filter = document.getElementById('jornada-filter');
+  for(let j = 1; j <= NUM_JORNADAS; j++){
+    const opt = document.createElement('option');
+    opt.value = j; opt.textContent = 'Jornada ' + j;
+    filter.appendChild(opt);
+  }
+  filter.addEventListener('change', renderJornadaCards);
+  function renderJornadaCards(){
+    const container = document.getElementById('jornadas-cards');
+    const filterVal = filter.value;
+    const isAll = filterVal === 'all';
+    container.innerHTML = '';
+
+    if(isAll){
+      const hdr = document.createElement('div');
+      hdr.style.cssText = 'display:flex;align-items:center;padding:0 16px 6px;font-size:11px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.06em;font-family:JetBrains Mono,monospace;';
+      hdr.innerHTML = '<span style="width:40px;text-align:center;flex-shrink:0;">#</span><span style="flex:1;">Equipo</span><span style="width:80px;text-align:right;flex-shrink:0;">Primas total</span>';
+      container.appendChild(hdr);
+
+      let data = PLAYERS.map((p, i) => ({...p, idx: i, primas: computePrimas(i)}));
+      data.sort((a, b) => b.primas - a.primas);
+
+      data.forEach((p, rank) => {
+        const row = document.createElement('div');
+        row.className = 'jornada-row';
+        const icon = biwengerIcons[p.equipo.toLowerCase()];
+        const iconHtml = icon ? '<img src="'+icon+'" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">' : '';
+        row.innerHTML = '<span class="pos" style="font-size:14px;color:var(--chalk-dim);">'+(rank+1)+'</span><span class="info">'+iconHtml+' <span><span class="team">'+p.equipo+'</span><br><span class="mgr">'+p.nombre+'</span></span></span><span class="pri">'+p.primas+'€</span>';
+        container.appendChild(row);
+      });
+      return;
+    }
+
+    const j = parseInt(filterVal) - 1;
+    const jornadaRellenada = ranks.some(row => row[j] !== null && row[j] !== undefined);
+
+    // Vista pública: jornadas no jugadas/pendientes → no mostrar datos ni confusión.
+    // Admin: siempre puede acceder a editar, incluso antes de que haya posiciones.
+    if(!jornadaRellenada && !isAdmin){
+      container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--chalk-dim);"><div style="font-family:Bebas Neue,sans-serif;font-size:36px;color:var(--amber-dim);margin-bottom:8px;">⏳</div><p style="font-size:15px;">Jornada ' + filterVal + ' aún no se ha jugado.</p><p style="font-size:13px;margin-top:4px;">Las posiciones aparecerán aquí cuando se introduzcan los resultados.</p></div>';
+      return;
+    }
+
+    if(isAdmin && !jornadaRellenada){
+      container.innerHTML = '<div style="padding:18px 22px;margin-bottom:14px;background:rgba(242,169,59,0.07);border:1px dashed var(--amber-dim);border-radius:6px;font-size:13px;color:var(--chalk-dim);">✏️ Jornada ' + filterVal + ' aún sin resultados de Biwenger. Puedes introducir las posiciones manualmente aquí abajo (se conservarán).</div>';
+    }
+
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'display:flex;align-items:center;padding:0 16px 6px;font-size:11px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.06em;font-family:JetBrains Mono,monospace;';
+    hdr.innerHTML = '<span style="width:40px;text-align:center;flex-shrink:0;">Pos</span><span style="flex:1;">Equipo</span><span style="width:70px;text-align:right;flex-shrink:0;">Prima J' + filterVal + '</span>';
+    container.appendChild(hdr);
+
+    let data = PLAYERS.map((p, i) => ({...p, idx: i, primas: computePrimas(i)}));
+    data.sort((a, b) => {
+      const va = ranks[a.idx][j], vb = ranks[b.idx][j];
+      const na = (va === null || va === undefined), nb = (vb === null || vb === undefined);
+      if(na && nb) return 0;
+      if(na) return 1;
+      if(nb) return -1;
+      return va - vb;
+    });
+    data.forEach((p) => {
+      const row = document.createElement('div');
+      row.className = 'jornada-row';
+      const icon = biwengerIcons[p.equipo.toLowerCase()];
+      const iconHtml = icon ? '<img src="'+icon+'" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">' : '';
+      const val = ranks[p.idx][j];
+      const cls = val===1?'':(val===2||val===3?' r2':'');
+      const posText = val!==null&&val!==undefined?val:'';
+      const primaJ = primaJornada(p.idx, j);
+      if(isAdmin){
+        row.innerHTML = '<span class="pos'+cls+'" style="font-size:14px;">'+(posText||'—')+'</span><span class="info">'+iconHtml+' <span><span class="team">'+p.equipo+'</span><br><span class="mgr">'+p.nombre+'</span></span></span><input class="pos-input" data-p="'+p.idx+'" data-j="'+j+'" value="'+(val!==null&&val!==undefined?val:'')+'" placeholder="—"><span class="pri">'+primaJ+'€<small style="display:block;font-size:10px;color:var(--chalk-dim);font-weight:400;">J'+filterVal+'</small></span>';
+      } else {
+        row.innerHTML = '<span class="pos'+cls+'">'+(posText||'—')+'</span><span class="info">'+iconHtml+' <span><span class="team">'+p.equipo+'</span><br><span class="mgr">'+p.nombre+'</span></span></span><span class="pri">'+primaJ+'€<small style="display:block;font-size:10px;color:var(--chalk-dim);font-weight:400;">J'+filterVal+'</small></span>';
+      }
+      container.appendChild(row);
+    });
+
+if(isAdmin && !isAll){
+      container.oninput = function(e){
+        const inp = e.target.closest('.pos-input');
+        if(!inp) return;
+        const p = Number(inp.dataset.p), j = Number(inp.dataset.j);
+        let raw = parseInt(inp.value);
+        let val = (isNaN(raw) || raw === 0 || raw < 1 || raw > 14) ? null : raw;
+        ranks[p][j] = val;
+        saveRanks(); dirty = true;
+        updateBanner();
+        const row = inp.closest('.jornada-row');
+        const posSpan = row.querySelector('.pos');
+        const cls = val === 1 ? '' : (val === 2 || val === 3 ? ' r2' : '');
+        posSpan.className = 'pos' + cls;
+        posSpan.textContent = val !== null ? val : '—';
+      };
+    }
+  }
+
+  let biwengerIcons = {};
+  fetch('biwenger-data.json')
+    .then(r => r.json())
+    .then(data => {
+      (data.standings || []).forEach(s => { biwengerIcons[s.name.toLowerCase()] = s.icon; });
+      renderJornadaCards();
+    })
+    .catch(() => renderJornadaCards());
+
+
+  function updateBanner(){
+    const actual = computeJornadaActual();
+    document.getElementById('jb-actual').innerHTML = actual + ' <span>/ 38</span>';
+    document.getElementById('jb-label').textContent = actual === 0 ? 'Aún sin empezar' : 'Jornada ' + actual + ' jugada';
+    const totalPrimas = PLAYERS.reduce((sum, _, i) => sum + computePrimas(i), 0);
+    document.getElementById('jb-primas').textContent = totalPrimas + '€ / 152€';
+  }
+
+  updateBanner();
+
+  // --- Seccion de pagos ---
+  const PAGOS_KEY = 'comunio_pagos_v1';
+  const BOTE_ESPERADO = 530;
+  const CUOTA_NORMAL = 40;
+
+  let pagos = PLAYERS.map(p => ({...p}));
+  try{ const raw = localStorage.getItem(PAGOS_KEY); if(raw){ pagos = JSON.parse(raw); } }catch(e){}
+  // Sync desde PLAYERS usando nombre como clave
+  const playerByName = {}; PLAYERS.forEach(p => { playerByName[p.nombre] = p; });
+  pagos.forEach(p => {
+    const src = playerByName[p.nombre];
+    if(src){ p.equipo = src.equipo; p.biwengerId = src.biwengerId; }
+  });
+  savePagos();
+  function savePagos(){ try{ localStorage.setItem(PAGOS_KEY, JSON.stringify(pagos)); }catch(e){} }
+
+  function updatePagosSummary(){
+    const pagadosList = pagos.filter(j => j.pagado);
+    const pendientesList = pagos.filter(j => !j.pagado);
+    const recaudado = pagos.reduce((sum, j) => {
+      const m = parseInt(j.cuota) || 0;
+      if(j.pagado) return sum + m;
+      if(m < CUOTA_NORMAL) return sum + m;
+      return sum;
+    }, 0);
+    const pct = Math.min(100, Math.round((recaudado / BOTE_ESPERADO) * 100));
+    const resto = BOTE_ESPERADO - recaudado;
+    document.getElementById('pg-pagados').textContent = pagadosList.length+'/'+pagos.length;
+    document.getElementById('pg-pendientes').textContent = pendientesList.length;
+    document.getElementById('pg-recaudado').innerHTML = recaudado+'€ <span style="font-size:18px;color:var(--chalk-dim)">/ '+BOTE_ESPERADO+'€</span>';
+    document.getElementById('pg-restante').textContent = (resto > 0 ? resto+'€ por cobrar' : '¡Completado!');
+    document.getElementById('pg-fill').style.width = pct+'%';
+  }
+
+  function renderPagos(){
+    const listaPagados = document.getElementById('lista-pagados');
+    const listaPendientes = document.getElementById('lista-pendientes');
+    listaPagados.innerHTML = '';
+    listaPendientes.innerHTML = '';
+
+    pagos.forEach((j, idx) => {
+      const row = document.createElement('div');
+      row.className = 'player-row';
+      row.style.cssText = 'display:flex; align-items:center; gap:10px;';
+      const pagadoVal = parseInt(j.cuota) || 0;
+      const debeVal = Math.max(0, CUOTA_NORMAL - pagadoVal);
+
+      if(isAdmin){
+        row.innerHTML = `
+          <span class="dot"></span>
+          <span class="who" style="flex:1;"><span class="name">${j.equipo}</span><br><span class="team">${j.nombre}</span></span>
+          <div style="display:flex; align-items:center; gap:4px;">
+            <span style="font-size:11px; color:var(--chalk-dim);">Pagado</span>
+            <input class="pago-monto" data-idx="${idx}" value="${j.cuota.replace('€','').replace('+ pendiente','').replace('+ premium','').trim()}" style="width:52px; background:var(--pitch-dark); border:1px solid var(--line-strong); border-radius:4px; color:var(--chalk); font-family:'JetBrains Mono',monospace; text-align:center; font-size:14px; font-weight:700; padding:4px; outline:none;">
+            <span style="font-size:11px; color:var(--chalk-dim);">€</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:4px;">
+            <span style="font-size:11px; color:var(--chalk-dim);">Debe</span>
+            <input class="pago-debe" value="${debeVal}" readonly style="width:52px; background:transparent; border:1px solid var(--line); border-radius:4px; color:var(--amber-dim); font-family:'JetBrains Mono',monospace; text-align:center; font-size:14px; font-weight:700; padding:4px; outline:none; cursor:default;">
+            <span style="font-size:11px; color:var(--chalk-dim);">€</span>
+          </div>
+          <button class="pago-toggle" data-idx="${idx}" style="background:${j.pagado?'#4ADE80':'var(--amber-dim)'}; border:none; color:var(--navy); font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; cursor:pointer; white-space:nowrap;">${j.pagado ? '✓' : '✗'}</button>
+        `;
+      } else {
+        const pct = Math.round((pagadoVal / CUOTA_NORMAL) * 100);
+        const dotColor = j.pagado ? '#4ADE80' : (pagadoVal > 0 ? 'var(--amber-dim)' : 'var(--red)');
+        row.innerHTML = `
+          <span class="dot" style="background:${dotColor}; box-shadow:0 0 6px ${dotColor};"></span>
+          <span class="who" style="flex:1;"><span class="name">${j.equipo}</span><br><span class="team">${j.nombre}</span></span>
+          <div style="text-align:right;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; color:var(--chalk);">${j.pagado ? '40€' : pagadoVal+'€'}</div>
+            <div style="font-size:11px; color:${j.pagado ? '#4ADE80' : (pagadoVal > 0 ? 'var(--amber-dim)' : 'var(--red)')};">
+              ${j.pagado ? '✅ Completado' : (pagadoVal > 0 ? 'Pagado: '+pagadoVal+'€ · Debe: '+debeVal+'€' : 'Debe: '+debeVal+'€')}
+            </div>
+          </div>
+        `;
+      }
+      (j.pagado ? listaPagados : listaPendientes).appendChild(row);
+    });
+
+    if(isAdmin){
+      listaPagados.onclick = listaPendientes.onclick = function(e){
+        const btn = e.target.closest('.pago-toggle');
+        if(!btn) return;
+        const idx = Number(btn.dataset.idx);
+        pagos[idx].pagado = !pagos[idx].pagado;
+        savePagos(); dirty = true;
+        renderPagos();
+      };
+      const handleMonto = function(e){
+        const input = e.target.closest('.pago-monto');
+        if(!input) return;
+        const idx = Number(input.dataset.idx);
+        const val = parseInt(input.value) || 0;
+        const clean = Math.max(0, Math.min(CUOTA_NORMAL, val));
+        pagos[idx].cuota = clean + '€';
+        savePagos(); dirty = true;
+        // Actualizar campo debe sin re-renderizar
+        const row = input.closest('.player-row');
+        const debeInput = row.querySelector('.pago-debe');
+        if(debeInput) debeInput.value = CUOTA_NORMAL - clean;
+        updatePagosSummary();
+      };
+      listaPagados.oninput = listaPendientes.oninput = handleMonto;
+    }
+
+    updatePagosSummary();
+  }
+
+  renderPagos();
+
+  function renderAll(){ renderJornadaCards(); renderPagos(); updateBanner(); }
+
+  // Mezclar las posiciones oficiales de Biwenger (jornadas completadas) sobre ranks.
+  // El JSON solo contiene jornadas "finished": si una jornada está pendiente/aplazada
+  // aparece como null y no se toca. Las posiciones introducidas a mano se conservan
+  // en jornadas donde Biwenger aún no tiene resultado.
+  async function mergeJornadasData(){
+    try {
+      const res = await fetch('jornadas-data.json');
+      if(!res.ok) return;
+      const file = await res.json();
+      if(!Array.isArray(file) || file.length !== PLAYERS.length) return;
+      file.forEach((row, i) => {
+        if(!Array.isArray(row)) return;
+        if(!ranks[i] || ranks[i].length !== NUM_JORNADAS) ranks[i] = Array(NUM_JORNADAS).fill(null);
+        row.forEach((v, j) => {
+          if(v !== null && v !== undefined) ranks[i][j] = v;
+        });
+      });
+      saveRanks();
+    } catch(e) {}
+  }
+
+  // Cargar desde KV al iniciar
+  (async function(){
+    const hasLocalData = ranks.some(row => row.some(v => v !== null));
+    if(!hasLocalData){
+      try {
+        const res = await fetch(KV_WORKER);
+        if(res.ok){
+          const data = await res.json();
+          if(data.jornadas && Array.isArray(data.jornadas) && data.jornadas.length === PLAYERS.length){ ranks = data.jornadas; saveRanks(); }
+          if(data.pagos && Array.isArray(data.pagos)){ pagos = data.pagos; savePagos(); }
+        }
+      } catch(e) {}
+    }
+    await mergeJornadasData();
+    renderAll();
+  })();
+
+  // --- Datos Biwenger (clasificación real por puntos) ---
+  async function loadBiwengerData() {
+    const tbody = document.getElementById('tabla-biwenger');
+    const updatedEl = document.getElementById('biwenger-updated');
+    try {
+      const res = await fetch('biwenger-data.json');
+      if (!res.ok) throw new Error('No se encontró biwenger-data.json');
+      const data = await res.json();
+      const { standings } = data;
+
+      if (!standings || standings.length === 0) throw new Error('Sin datos de clasificación');
+
+      tbody.innerHTML = '';
+      standings.forEach((s, idx) => {
+        const tr = document.createElement('tr');
+        const pos = s.position || (idx + 1);
+        const iconHtml = s.icon ? `<img src="${s.icon}" alt="" style="width:22px; height:22px; border-radius:50%; vertical-align:middle; margin-right:10px; object-fit:cover;">` : '';
+        tr.innerHTML = `
+          <td class="num" style="font-family:'JetBrains Mono',monospace; font-weight:700;">${pos}</td>
+          <td class="jugador">${iconHtml}${s.name}</td>
+          <td class="num" style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:16px; color:var(--amber);">${s.points.toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const date = new Date(data.updatedAt);
+      const dateStr = date.toLocaleString('es-ES', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      updatedEl.innerHTML = `Datos oficiales de Biwenger. <b>Actualizado: ${dateStr}</b>.`;
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:var(--chalk-dim);">⚠ Sin datos. Ejecuta <span class="mono">node fetch-biwenger.mjs</span> tras configurar <span class="mono">.biwenger-credentials.json</span></td></tr>`;
+    }
+  }
+  loadBiwengerData();
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>

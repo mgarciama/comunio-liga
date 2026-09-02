@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
+:root{
     --pitch:#0B3D2E;
     --pitch-dark:#082B21;
     --chalk:#F5F3EC;
@@ -486,14 +486,14 @@
 <nav>
   <div class="wrap">
     <div class="brand"><span class="dot"></span>El mundo para-lelo <span class="admin-badge">ADMIN</span></div>
-    <ul>
-      <li><a href="#inicio">Inicio</a></li>
-      <li><a href="#bote">Bote</a></li>
-      <li><a href="#reglas">Reglas</a></li>
-      <li><a href="#normas">Normas</a></li>
-      <li><a href="#jornadas">Jornadas</a></li>
-      <li><a href="#clasificacion">Clasif.</a></li>
-      <li><a href="#pagos">Pagos</a></li>
+    <ul class="nav-links">
+      <li><a href="#inicio" class="nav-inicio nav-active">Inicio</a></li>
+      <li><a href="#bote" class="nav-bote">Bote</a></li>
+      <li><a href="#reglas" class="nav-reglas">Reglas</a></li>
+      <li><a href="#normas" class="nav-normas">Normas</a></li>
+      <li><a href="#jornadas" class="nav-jornadas">Jornadas</a></li>
+      <li><a href="#clasificacion" class="nav-clasificacion">Clasif.</a></li>
+      <li><a href="#pagos" class="nav-pagos">Pagos</a></li>
       <li><a href="#" id="login-trigger" style="color:var(--amber-dim);font-size:12px;">👤</a></li>
       <li class="admin-only"><a href="#" id="logout-trigger" style="color:var(--red);font-size:12px;">↩</a></li>
       <li class="admin-only"><a href="#" id="save-trigger" style="color:var(--amber);font-size:12px;">💾</a></li>
@@ -503,35 +503,35 @@
 </nav>
 
 <section id="inicio">
-<header class="hero">
-  <div class="wrap">
-    <span class="eyebrow">Temporada 26/27 · 38 jornadas</span>
-    <h1 class="title">EL MUNDO<span class="sub">PARA-LELO</span></h1>
+  <header class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Temporada 26/27 · 38 jornadas</span>
+      <h1 class="title">EL MUNDO<span class="sub">PARA-LELO</span></h1>
 
-    <div class="hero-grid">
-      <div class="hero-copy">
-        <p>14 jugadores, un bote común y una liga que se decide jornada a jornada. Aquí vive el reparto de premios, las reglas de las primas y quién manda en la clasificación.</p>
-      </div>
-
-      <div class="scoreboard">
-        <div class="flap-row">
-          <div class="flap">5</div>
-          <div class="flap">3</div>
-          <div class="flap">0</div>
-          <div class="flap suffix">€</div>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p>14 jugadores, un bote común y una liga que se decide jornada a jornada. Aquí vive el reparto de premios, las reglas de las primas y quién manda en la clasificación.</p>
         </div>
-        <p class="scoreboard-note"><b>378 €</b> en premios fijos + <b>152 €</b> en primas por jornada.</p>
+
+        <div class="scoreboard">
+          <div class="flap-row">
+            <div class="flap">5</div>
+            <div class="flap">3</div>
+            <div class="flap">0</div>
+            <div class="flap suffix">€</div>
+          </div>
+          <p class="scoreboard-note"><b>378 €</b> en premios fijos + <b>152 €</b> en primas por jornada.</p>
+        </div>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat"><div class="n">14</div><div class="l">Jugadores</div></div>
+        <div class="stat"><div class="n">38</div><div class="l">Jornadas</div></div>
+        <div class="stat"><div class="n">3</div><div class="l">Premios fijos</div></div>
+        <div class="stat"><div class="n">530€</div><div class="l">Bote total</div></div>
       </div>
     </div>
-
-    <div class="stat-strip">
-      <div class="stat"><div class="n">14</div><div class="l">Jugadores</div></div>
-      <div class="stat"><div class="n">38</div><div class="l">Jornadas</div></div>
-      <div class="stat"><div class="n">3</div><div class="l">Premios fijos</div></div>
-      <div class="stat"><div class="n">530€</div><div class="l">Bote total</div></div>
-    </div>
-  </div>
-</header>
+  </header>
 </section>
 
 <section id="bote">
@@ -707,7 +707,7 @@
         </div>
       </details>
 
-      <details class="normas-item receive">
+      <details class="normas-item reveal">
         <summary><span class="emoji">📊</span>Primas por posición inversa<span class="chev">&#9660;</span></summary>
         <div class="normas-body">
           <p class="lead">Para ayudar a que los últimos clasificados de cada jornada no se descuelguen:</p>
@@ -835,8 +835,9 @@
 </div>
 
 <script>
-  // --- Auth ---
+// --- Auth ---
   const KV_WORKER = 'https://comunio-kv.garciamartin-manuel-mg.workers.dev';
+  const REPO = 'mgarciama/comunio-liga';
   const ADMIN_USER = '@admin', ADMIN_PASS = 'Europa001@';
   let isAdmin = sessionStorage.getItem('comunio_admin') === '1';
   let dirty = false; // cambios sin guardar
@@ -1027,6 +1028,13 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
     }
     return total;
   }
+  // Prima otorgada en una jornada concreta (2€ 1º, 1€ 2º/3º, 0€ resto)
+  function primaJornada(i, j){
+    const r = ranks[i] && ranks[i][j];
+    if(r === 1) return 2;
+    if(r === 2 || r === 3) return 1;
+    return 0;
+  }
   function computeJornadaActual(){
     let last = 0;
     for(let j = 0; j < NUM_JORNADAS; j++){
@@ -1049,35 +1057,67 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
     const isAll = filterVal === 'all';
     container.innerHTML = '';
 
-    // Header
+    if(isAll){
+      const hdr = document.createElement('div');
+      hdr.style.cssText = 'display:flex;align-items:center;padding:0 16px 6px;font-size:11px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.06em;font-family:JetBrains Mono,monospace;';
+      hdr.innerHTML = '<span style="width:40px;text-align:center;flex-shrink:0;">#</span><span style="flex:1;">Equipo</span><span style="width:80px;text-align:right;flex-shrink:0;">Primas total</span>';
+      container.appendChild(hdr);
+
+      let data = PLAYERS.map((p, i) => ({...p, idx: i, primas: computePrimas(i)}));
+      data.sort((a, b) => b.primas - a.primas);
+
+      data.forEach((p, rank) => {
+        const row = document.createElement('div');
+        row.className = 'jornada-row';
+        const icon = biwengerIcons[p.equipo.toLowerCase()];
+        const iconHtml = icon ? '<img src="'+icon+'" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">' : '';
+        row.innerHTML = '<span class="pos" style="font-size:14px;color:var(--chalk-dim);">'+(rank+1)+'</span><span class="info">'+iconHtml+' <span><span class="team">'+p.equipo+'</span><br><span class="mgr">'+p.nombre+'</span></span></span><span class="pri">'+p.primas+'€</span>';
+        container.appendChild(row);
+      });
+      return;
+    }
+
+    const j = parseInt(filterVal) - 1;
+    const jornadaRellenada = ranks.some(row => row[j] !== null && row[j] !== undefined);
+
+    // Vista pública: jornadas no jugadas/pendientes → no mostrar datos ni confusión.
+    // Admin: siempre puede acceder a editar, incluso antes de que haya posiciones.
+    if(!jornadaRellenada && !isAdmin){
+      container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--chalk-dim);"><div style="font-family:Bebas Neue,sans-serif;font-size:36px;color:var(--amber-dim);margin-bottom:8px;">⏳</div><p style="font-size:15px;">Jornada ' + filterVal + ' aún no se ha jugado.</p><p style="font-size:13px;margin-top:4px;">Las posiciones aparecerán aquí cuando se introduzcan los resultados.</p></div>';
+      return;
+    }
+
+    if(isAdmin && !jornadaRellenada){
+      container.innerHTML = '<div style="padding:18px 22px;margin-bottom:14px;background:rgba(242,169,59,0.07);border:1px dashed var(--amber-dim);border-radius:6px;font-size:13px;color:var(--chalk-dim);">✏️ Jornada ' + filterVal + ' aún sin resultados de Biwenger. Puedes introducir las posiciones manualmente aquí abajo (se conservarán).</div>';
+    }
+
     const hdr = document.createElement('div');
     hdr.style.cssText = 'display:flex;align-items:center;padding:0 16px 6px;font-size:11px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.06em;font-family:JetBrains Mono,monospace;';
-    hdr.innerHTML = isAll
-      ? '<span style="width:40px;text-align:center;flex-shrink:0;">#</span><span style="flex:1;">Equipo</span><span style="width:80px;text-align:right;flex-shrink:0;">Primas total</span>'
-      : '<span style="width:40px;text-align:center;flex-shrink:0;">Pos</span><span style="flex:1;">Equipo</span><span style="width:70px;text-align:right;flex-shrink:0;">Prima J'+filterVal+'</span>';
+    hdr.innerHTML = '<span style="width:40px;text-align:center;flex-shrink:0;">Pos</span><span style="flex:1;">Equipo</span><span style="width:70px;text-align:right;flex-shrink:0;">Prima J' + filterVal + '</span>';
     container.appendChild(hdr);
 
     let data = PLAYERS.map((p, i) => ({...p, idx: i, primas: computePrimas(i)}));
-    if(isAll) data.sort((a, b) => b.primas - a.primas);
-
-    data.forEach((p, rank) => {
+    data.sort((a, b) => {
+      const va = ranks[a.idx][j], vb = ranks[b.idx][j];
+      const na = (va === null || va === undefined), nb = (vb === null || vb === undefined);
+      if(na && nb) return 0;
+      if(na) return 1;
+      if(nb) return -1;
+      return va - vb;
+    });
+    data.forEach((p) => {
       const row = document.createElement('div');
       row.className = 'jornada-row';
       const icon = biwengerIcons[p.equipo.toLowerCase()];
       const iconHtml = icon ? '<img src="'+icon+'" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">' : '';
-
-      if(isAll){
-        row.innerHTML = '<span class="pos" style="font-size:14px;color:var(--chalk-dim);">'+(rank+1)+'</span><span class="info">'+iconHtml+' <span><span class="team">'+p.equipo+'</span><br><span class="mgr">'+p.nombre+'</span></span></span><span class="pri">'+p.primas+'€</span>';
+      const val = ranks[p.idx][j];
+      const cls = val===1?'':(val===2||val===3?' r2':'');
+      const posText = val!==null&&val!==undefined?val:'';
+      const primaJ = primaJornada(p.idx, j);
+      if(isAdmin){
+        row.innerHTML = '<span class="pos'+cls+'" style="font-size:14px;">'+(posText||'—')+'</span><span class="info">'+iconHtml+' <span><span class="team">'+p.equipo+'</span><br><span class="mgr">'+p.nombre+'</span></span></span><input class="pos-input" data-p="'+p.idx+'" data-j="'+j+'" value="'+(val!==null&&val!==undefined?val:'')+'" placeholder="—"><span class="pri">'+primaJ+'€<small style="display:block;font-size:10px;color:var(--chalk-dim);font-weight:400;">J'+filterVal+'</small></span>';
       } else {
-        const j = parseInt(filterVal) - 1;
-        const val = ranks[p.idx][j];
-        const cls = val===1?'':(val===2||val===3?' r2':'');
-        const posText = val!==null&&val!==undefined?val:'';
-        if(isAdmin){
-          row.innerHTML = '<span class="pos'+cls+'" style="font-size:14px;">'+(posText||'—')+'</span><span class="info">'+iconHtml+' <span><span class="team">'+p.equipo+'</span><br><span class="mgr">'+p.nombre+'</span></span></span><input class="pos-input" data-p="'+p.idx+'" data-j="'+j+'" value="'+(val!==null&&val!==undefined?val:'')+'" placeholder="—">';
-        } else {
-          row.innerHTML = '<span class="pos'+cls+'">'+(posText||'—')+'</span><span class="info">'+iconHtml+' <span><span class="team">'+p.equipo+'</span><br><span class="mgr">'+p.nombre+'</span></span></span><span class="pri">'+p.primas+'€<small style="display:block;font-size:10px;color:var(--chalk-dim);font-weight:400;">Total</small></span>';
-        }
+        row.innerHTML = '<span class="pos'+cls+'">'+(posText||'—')+'</span><span class="info">'+iconHtml+' <span><span class="team">'+p.equipo+'</span><br><span class="mgr">'+p.nombre+'</span></span></span><span class="pri">'+primaJ+'€<small style="display:block;font-size:10px;color:var(--chalk-dim);font-weight:400;">J'+filterVal+'</small></span>';
       }
       container.appendChild(row);
     });
@@ -1092,7 +1132,6 @@ if(isAdmin && !isAll){
         ranks[p][j] = val;
         saveRanks(); dirty = true;
         updateBanner();
-        // Actualizar solo esta fila
         const row = inp.closest('.jornada-row');
         const posSpan = row.querySelector('.pos');
         const cls = val === 1 ? '' : (val === 2 || val === 3 ? ' r2' : '');
@@ -1235,6 +1274,27 @@ if(isAdmin && !isAll){
 
   function renderAll(){ renderJornadaCards(); renderPagos(); updateBanner(); }
 
+  // Mezclar las posiciones oficiales de Biwenger (jornadas completadas) sobre ranks.
+  // El JSON solo contiene jornadas "finished": si una jornada está pendiente/aplazada
+  // aparece como null y no se toca. Las posiciones introducidas a mano se conservan
+  // en jornadas donde Biwenger aún no tiene resultado.
+  async function mergeJornadasData(){
+    try {
+      const res = await fetch('jornadas-data.json');
+      if(!res.ok) return;
+      const file = await res.json();
+      if(!Array.isArray(file) || file.length !== PLAYERS.length) return;
+      file.forEach((row, i) => {
+        if(!Array.isArray(row)) return;
+        if(!ranks[i] || ranks[i].length !== NUM_JORNADAS) ranks[i] = Array(NUM_JORNADAS).fill(null);
+        row.forEach((v, j) => {
+          if(v !== null && v !== undefined) ranks[i][j] = v;
+        });
+      });
+      saveRanks();
+    } catch(e) {}
+  }
+
   // Cargar desde KV al iniciar
   (async function(){
     const hasLocalData = ranks.some(row => row.some(v => v !== null));
@@ -1248,6 +1308,7 @@ if(isAdmin && !isAll){
         }
       } catch(e) {}
     }
+    await mergeJornadasData();
     renderAll();
   })();
 

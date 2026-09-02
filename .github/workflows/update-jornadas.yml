@@ -1,0 +1,43 @@
+name: Update Jornadas
+
+on:
+  schedule:
+    # GitHub Actions va en UTC. España: CEST (UTC+2, verano) / CET (UTC+1, invierno).
+    # Dos disparos para cubrir ~10:00 de Madrid.
+    - cron: '0 8 * * *'   # 10:00 CEST (verano)
+    - cron: '0 9 * * *'   # 10:00 CET (invierno)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-jornadas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Obtener posiciones por API
+        env:
+          BIWENGER_EMAIL: ${{ secrets.BIWENGER_EMAIL }}
+          BIWENGER_PASSWORD: ${{ secrets.BIWENGER_PASSWORD }}
+        run: node update-jornadas.mjs
+
+      - name: Construir sitio
+        run: node build.mjs
+
+      - name: Commit si hay cambios
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Sin cambios"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add jornadas-data.json public/ index.html
+            git commit -m "⬆ Update jornadas automatizado"
+            git pull --rebase -X theirs
+            git push
+          fi
