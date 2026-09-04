@@ -836,7 +836,7 @@
 
 <script>
 // --- Auth ---
-  const KV_WORKER = 'https://comunio-kv.garciamartin-manuel-mg.workers.dev';
+  const KV_WORKER = 'https://comunio-liga.garciamartin-manuel-mg.workers.dev/api';
   const REPO = 'mgarciama/comunio-liga';
   const ADMIN_USER = '@admin', ADMIN_PASS = 'Europa001@';
   let isAdmin = sessionStorage.getItem('comunio_admin') === '1';
@@ -1141,9 +1141,21 @@ if(isAdmin && !isAll){
     }
   }
 
+  async function fetchBiwengerData() {
+    try {
+      const res = await fetch(KV_WORKER);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.biwenger && Array.isArray(data.biwenger.standings)) return data.biwenger;
+      }
+    } catch (e) {}
+    const res = await fetch('biwenger-data.json');
+    if (!res.ok) throw new Error('No se encontró biwenger-data.json');
+    return await res.json();
+  }
+
   let biwengerIcons = {};
-  fetch('biwenger-data.json')
-    .then(r => r.json())
+  fetchBiwengerData()
     .then(data => {
       (data.standings || []).forEach(s => { biwengerIcons[s.name.toLowerCase()] = s.icon; });
       renderJornadaCards();
@@ -1317,9 +1329,7 @@ if(isAdmin && !isAll){
     const tbody = document.getElementById('tabla-biwenger');
     const updatedEl = document.getElementById('biwenger-updated');
     try {
-      const res = await fetch('biwenger-data.json');
-      if (!res.ok) throw new Error('No se encontró biwenger-data.json');
-      const data = await res.json();
+      const data = await fetchBiwengerData();
       const { standings } = data;
 
       if (!standings || standings.length === 0) throw new Error('Sin datos de clasificación');

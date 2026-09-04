@@ -8,8 +8,11 @@
   },
   "kv_namespaces": [
     {
-      "binding": "LIGA_KV",
+      "binding": "COMUNIO",
       "id": "6f7df05e1001432c8661884b970ab14c"
     }
-  ]
+  ],
+  "triggers": {
+    "crons": ["0 5 * * *", "0 6 * * *"]
+  }
 }
