@@ -2,7 +2,7 @@ const BASE = 'https://biwenger.as.com/api/v2';
 const LEAGUE_ID = 530044;
 const NUM_JORNADAS = 38;
 const NUM_PLAYERS = 14;
-const IS_MADRID_TARGETS = ['07:00', '13:00', '17:00', '17:30', '18:00', '21:00'];
+const IS_MADRID_TARGETS = ['07:00', '13:00', '17:30', '21:00'];
 const MADRID_MARGIN_MIN = 2;
 
 // Los 14 managers de la liga (el mismo listado que update-jornadas.mjs)
@@ -133,6 +133,14 @@ async function updateJornadas(session, env, jornadaNum, standings) {
   } catch (e) {}
 
   const col = Math.min(jornadaNum - 1, NUM_JORNADAS - 1);
+
+  // Si la jornada ya está completa, no sobreescribir nada.
+  const yaCompleta = matrix.every(row => row[col] != null);
+  if (yaCompleta) {
+    console.log(`   ⏩ J${jornadaNum}: ya actualizada, no se toca nada.`);
+    return matrix;
+  }
+
   for (const m of standings) {
     const pos = m.lineup?.position;
     if (pos == null) continue;

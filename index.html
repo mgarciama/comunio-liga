@@ -1307,19 +1307,24 @@ if(isAdmin && !isAll){
     } catch(e) {}
   }
 
-  // Cargar desde KV al iniciar
+  // Cargar desde KV al iniciar (el KV del cron siempre es fuente, rellena sin pisar)
   (async function(){
-    const hasLocalData = ranks.some(row => row.some(v => v !== null));
-    if(!hasLocalData){
-      try {
-        const res = await fetch(KV_WORKER);
-        if(res.ok){
-          const data = await res.json();
-          if(data.jornadas && Array.isArray(data.jornadas) && data.jornadas.length === PLAYERS.length){ ranks = data.jornadas; saveRanks(); }
-          if(data.pagos && Array.isArray(data.pagos)){ pagos = data.pagos; savePagos(); }
+    try {
+      const res = await fetch(KV_WORKER);
+      if(res.ok){
+        const data = await res.json();
+        if(data.jornadas && Array.isArray(data.jornadas) && data.jornadas.length === PLAYERS.length){
+          data.jornadas.forEach((row, i) => {
+            if(!Array.isArray(row)) return;
+            if(!ranks[i] || ranks[i].length !== NUM_JORNADAS) ranks[i] = Array(NUM_JORNADAS).fill(null);
+            row.forEach((v, j) => {
+              if(v !== null && v !== undefined) ranks[i][j] = v;
+            });
+          });
         }
-      } catch(e) {}
-    }
+        if(data.pagos && Array.isArray(data.pagos)){ pagos = data.pagos; savePagos(); }
+      }
+    } catch(e) {}
     await mergeJornadasData();
     renderAll();
   })();
