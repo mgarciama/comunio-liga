@@ -2,7 +2,7 @@ const BASE = 'https://biwenger.as.com/api/v2';
 const LEAGUE_ID = 530044;
 const NUM_JORNADAS = 38;
 const NUM_PLAYERS = 14;
-const IS_MADRID_TARGETS = ['07:00', '13:00', '17:00', '21:00'];
+const IS_MADRID_TARGETS = ['07:00', '13:00', '17:00', '17:30', '18:00', '21:00'];
 const MADRID_MARGIN_MIN = 2;
 
 // Los 14 managers de la liga (el mismo listado que update-jornadas.mjs)
