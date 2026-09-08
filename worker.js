@@ -2,7 +2,8 @@ const BASE = 'https://biwenger.as.com/api/v2';
 const LEAGUE_ID = 530044;
 const NUM_JORNADAS = 38;
 const NUM_PLAYERS = 14;
-const IS_MADRID_TARGET = '07:00';
+const IS_MADRID_TARGETS = ['07:00', '13:00', '17:00', '21:00'];
+const MADRID_MARGIN_MIN = 2;
 
 // Los 14 managers de la liga (el mismo listado que update-jornadas.mjs)
 const MANAGER_IDS = [
@@ -13,8 +14,14 @@ const MANAGER_IDS = [
 function isMadridTargetTime() {
   const now = new Date();
   const time = now.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit', hour12: false });
-  // Igual que el workflow de GitHub: margen de 1-2 min por si CF retrasa el disparo
-  return time === IS_MADRID_TARGET || time === '07:01' || time === '07:02';
+  const [h, m] = time.split(':').map(Number);
+  const totalMin = h * 60 + m;
+  // Se ejecuta al menos 4 veces al día para capturar los puntos cuando salen.
+  // Margen de 2 min por si el cron llega con retraso.
+  return IS_MADRID_TARGETS.some(t => {
+    const [th, tm] = t.split(':').map(Number);
+    return Math.abs(totalMin - (th * 60 + tm)) <= MADRID_MARGIN_MIN;
+  });
 }
 
 async function biwengerLogin(email, password) {
@@ -180,7 +187,7 @@ export default {
 
   async scheduled(controller, env, ctx) {
     if (!isMadridTargetTime()) {
-      console.log(`Skip: no son las ${IS_MADRID_TARGET} en Madrid`);
+      console.log(`Skip: no es una hora objetivo en Madrid (${IS_MADRID_TARGETS.join(', ')})`);
       return;
     }
     ctx.waitUntil(updateBiwenger(env));
