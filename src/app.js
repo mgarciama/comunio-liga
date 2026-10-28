@@ -101,7 +101,8 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
     try {
       const res = await fetch(KV_WORKER, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // text/plain evita la preflight CORS (simple request); el worker parsea el body con request.json() igualmente.
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({ jornadas: ranks, pagos })
       });
       if(!res.ok) throw new Error('Error '+res.status);
