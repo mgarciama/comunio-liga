@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-08T15:49:00.567Z",
+  "updatedAt": "2026-10-28T12:35:42.792Z",
   "league": {
     "name": "El mundo para-lelo",
     "id": 530044,
@@ -9,99 +9,99 @@
   "standings": [
     {
       "position": 1,
-      "name": "Oportopor",
-      "points": 179,
-      "icon": "https://cdn.biwenger.com/i/u/2213275.png",
-      "id": 2213275
-    },
-    {
-      "position": 2,
       "name": "el maki Roldan",
-      "points": 176,
+      "points": 435,
       "icon": "https://cdn.biwenger.com/icons/26.png",
       "id": 2213278
     },
     {
+      "position": 2,
+      "name": "Los Reyes de Europa C.F",
+      "points": 429,
+      "icon": "https://cdn.biwenger.com/i/u/9990906.png?v=60",
+      "id": 9990906
+    },
+    {
       "position": 3,
       "name": "Sonámbulos Hermanos UF",
-      "points": 176,
+      "points": 423,
       "icon": "https://cdn.biwenger.com/i/u/12595114.png",
       "id": 12595114
     },
     {
       "position": 4,
-      "name": "MouTeam",
-      "points": 169,
-      "icon": "https://cdn.biwenger.com/i/u/13774004.png",
-      "id": 13975535
+      "name": "Oportopor",
+      "points": 423,
+      "icon": "https://cdn.biwenger.com/i/u/2213275.png",
+      "id": 2213275
     },
     {
       "position": 5,
-      "name": "Los Reyes de Europa C.F",
-      "points": 167,
-      "icon": "https://cdn.biwenger.com/i/u/9990906.png?v=60",
-      "id": 9990906
-    },
-    {
-      "position": 6,
-      "name": "Los Carrinton FC",
-      "points": 144,
-      "icon": "https://cdn.biwenger.com/i/t/15.png",
-      "id": 2213283
-    },
-    {
-      "position": 7,
       "name": "Bayer de Los Caídos FC",
-      "points": 138,
+      "points": 411,
       "icon": "https://cdn.biwenger.com/i/u/13955595.png",
       "id": 13955595
     },
     {
+      "position": 6,
+      "name": "MouTeam",
+      "points": 370,
+      "icon": "https://cdn.biwenger.com/i/u/13774004.png",
+      "id": 13975535
+    },
+    {
+      "position": 7,
+      "name": "Turbanera",
+      "points": 356,
+      "icon": "https://cdn.biwenger.com/icons/37.png",
+      "id": 2216723
+    },
+    {
       "position": 8,
       "name": "Luis de la Fuente",
-      "points": 138,
+      "points": 339,
       "icon": "https://cdn.biwenger.com/i/u/13946856.png",
       "id": 13946856
     },
     {
       "position": 9,
-      "name": "Turbanera",
-      "points": 129,
-      "icon": "https://cdn.biwenger.com/icons/37.png",
-      "id": 2216723
+      "name": "Los Carrinton FC",
+      "points": 334,
+      "icon": "https://cdn.biwenger.com/i/t/15.png",
+      "id": 2213283
     },
     {
       "position": 10,
       "name": "Gryffindor",
-      "points": 128,
+      "points": 316,
       "icon": "https://cdn.biwenger.com/i/u/2214626.png?v=38",
       "id": 2214626
     },
     {
       "position": 11,
       "name": "Fermux",
-      "points": 123,
+      "points": 315,
       "icon": "https://cdn.biwenger.com/i/u/2217630.png",
       "id": 2217630
     },
     {
       "position": 12,
       "name": "DIEGO ARMANDO MARADONA",
-      "points": 120,
+      "points": 290,
       "icon": "https://cdn.biwenger.com/i/u/13965613.png",
       "id": 13965613
     },
     {
       "position": 13,
       "name": "Nolillo2️⃣2️⃣",
-      "points": 103,
+      "points": 263,
       "icon": "https://cdn.biwenger.com/i/u/2213276.png",
       "id": 2213276
     },
     {
       "position": 14,
       "name": "la makina",
-      "points": 103,
+      "points": 235,
       "icon": "https://lh3.googleusercontent.com/a/AGNmyxZ9PpTff59PDqGLrbwYyHyB8cv7vujOzuCjRBO7=s300-c",
       "id": 13949428
     }
