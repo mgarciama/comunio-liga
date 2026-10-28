@@ -4,9 +4,24 @@ const BASE = 'https://biwenger.as.com/api/v2';
 const CF = 'https://cf.biwenger.com/api/v2';
 const CREDENTIALS_FILE = '.biwenger-credentials.json';
 const OUTPUT_FILE = 'jornadas-data.json';
+const ESTADO_FILE = 'jornadas-estado.json';
 const LEAGUE_ID = 530044;
 const NUM_JORNADAS = 38;
 const NUM_PLAYERS = 14;
+
+// Motivo legible de por qué una jornada aún no tiene posiciones (espejo del worker).
+function motivoRonda(games) {
+  if (!Array.isArray(games) || games.length === 0) return null;
+  const aplazados = games.filter(g => g.status === 'postponed');
+  const sinTerminar = games.filter(g => g.status !== 'finished');
+  if (aplazados.length > 0) {
+    const nombres = aplazados.slice(0, 2).map(g => `${g.home?.name || '?'} – ${g.away?.name || '?'}`);
+    const extra = sinTerminar.length > aplazados.length ? ` (y ${sinTerminar.length - aplazados.length} más sin terminar)` : '';
+    return `Partido aplazado: ${nombres.join(', ')}${extra}`;
+  }
+  if (sinTerminar.length > 0) return `${sinTerminar.length}/${games.length} partidos aún sin terminar`;
+  return 'Jornada finalizada pero sin posiciones publicadas aún';
+}
 
 const PLAYERS = [
   { nombre: 'Jose Negro', equipo: 'el maki Roldan',          biwengerId: 2213278 },
@@ -64,12 +79,15 @@ async function main() {
 
   const cal = (await (await fetch(`${BASE}/rounds/la-liga`, { headers: h })).json()).data;
   console.log(`📅 Temporada ${cal.season.name}`);
+  const calMatch = (cal.name || '').match(/(\d+)/);
+  const jornadaActualNum = calMatch ? parseInt(calMatch[1], 10) : null;
 
   // Precalcular posiciones de jugadores (para sustituciones)
   const pd = await (await fetch(`${CF}/competitions/la-liga/data?lang=es&score=5`, { headers: h })).json();
   const playerPos = {}; for (const [id, p] of Object.entries(pd.data.players)) playerPos[id] = p.position;
 
   const matrix = Array.from({ length: NUM_PLAYERS }, () => Array(NUM_JORNADAS).fill(null));
+  const motivos = {};
   const filled = [];
 
   for (const rd of cal.season.rounds) {
@@ -84,7 +102,14 @@ async function main() {
     const rddata = rr.data;
     if (!rddata || !rddata.games) continue;
     const todosAcabados = rddata.games.length > 0 && rddata.games.every(g => g.status === 'finished');
-    if (!todosAcabados) continue;
+    if (!todosAcabados) {
+      // Guardar el motivo de la jornada sin puntuar (solo rondas ya arrancadas).
+      if (num <= jornadaActualNum) {
+        const motivo = motivoRonda(rddata.games);
+        if (motivo) motivos[num] = motivo;
+      }
+      continue;
+    }
 
     // Intentar vía API (posición oficial ya publicada)
     const rl = await (await fetch(`${BASE}/rounds/league/${rd.id}`, { headers: h })).json();
@@ -138,7 +163,9 @@ async function main() {
   }
 
   writeFileSync(OUTPUT_FILE, JSON.stringify(matrix, null, 2));
+  writeFileSync(ESTADO_FILE, JSON.stringify(motivos, null, 2));
   console.log(`\n✔ ${filled.length} jornadas rellenadas → ${OUTPUT_FILE}`);
+  console.log(`✔ ${Object.keys(motivos).length} motivos de jornadas sin puntuar → ${ESTADO_FILE}`);
 }
 
 main().catch(e => { console.error('❌', e.message); process.exit(1); });

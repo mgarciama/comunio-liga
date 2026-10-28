@@ -728,7 +728,7 @@
     <div class="sec-head reveal">
       <span class="tag">Marcador · Jornada a jornada</span>
       <h2>¿Por dónde vamos?</h2>
-      <p>Posiciones de cada jugador en cada jornada. Las primas se calculan automáticamente.</p>
+      <p>Posiciones de cada jugador en cada jornada. Las primas se calculan automáticamente cuando Biwenger carge los datos.</p>
     </div>
 
     <div class="jornada-banner reveal">
@@ -1019,6 +1019,7 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
   }
 
   let ranks = loadRanks();
+  let estadoJornadas = {}; // motivo por jornada sin puntuar (desde el worker /api)
 
   function computePrimas(i){
     let total = 0;
@@ -1083,12 +1084,14 @@ const res = await fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer 
     // Vista pública: jornadas no jugadas/pendientes → no mostrar datos ni confusión.
     // Admin: siempre puede acceder a editar, incluso antes de que haya posiciones.
     if(!jornadaRellenada && !isAdmin){
-      container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--chalk-dim);"><div style="font-family:Bebas Neue,sans-serif;font-size:36px;color:var(--amber-dim);margin-bottom:8px;">⏳</div><p style="font-size:15px;">Jornada ' + filterVal + ' aún no se ha jugado.</p><p style="font-size:13px;margin-top:4px;">Las posiciones aparecerán aquí cuando se introduzcan los resultados.</p></div>';
+      const motivo = estadoJornadas[filterVal];
+      container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--chalk-dim);"><div style="font-family:Bebas Neue,sans-serif;font-size:36px;color:var(--amber-dim);margin-bottom:8px;">⏳</div><p style="font-size:15px;">Jornada ' + filterVal + ' aún no se ha puntuado.</p>' + (motivo ? '<p style="font-size:13px;margin-top:4px;color:var(--amber);">' + motivo + '</p>' : '<p style="font-size:13px;margin-top:4px;">Las posiciones aparecerán aquí cuando se introduzcan los resultados.</p>') + '</div>';
       return;
     }
 
     if(isAdmin && !jornadaRellenada){
-      container.innerHTML = '<div style="padding:18px 22px;margin-bottom:14px;background:rgba(242,169,59,0.07);border:1px dashed var(--amber-dim);border-radius:6px;font-size:13px;color:var(--chalk-dim);">✏️ Jornada ' + filterVal + ' aún sin resultados de Biwenger. Puedes introducir las posiciones manualmente aquí abajo (se conservarán).</div>';
+      const motivo = estadoJornadas[filterVal];
+      container.innerHTML = '<div style="padding:18px 22px;margin-bottom:14px;background:rgba(242,169,59,0.07);border:1px dashed var(--amber-dim);border-radius:6px;font-size:13px;color:var(--chalk-dim);">✏️ Jornada ' + filterVal + ' aún sin resultados de Biwenger.' + (motivo ? ' <b>' + motivo + '</b>' : '') + ' Puedes introducir las posiciones manualmente aquí abajo (se conservarán).</div>';
     }
 
     const hdr = document.createElement('div');
@@ -1307,6 +1310,20 @@ if(isAdmin && !isAll){
     } catch(e) {}
   }
 
+  // Rellenar motivos de jornadas sin puntuar desde el archivo estático
+  // (solo los huecos que el worker /api no haya cubierto).
+  async function mergeEstadoData(){
+    try {
+      const res = await fetch('jornadas-estado.json');
+      if(!res.ok) return;
+      const file = await res.json();
+      if(!file || typeof file !== 'object' || Array.isArray(file)) return;
+      for(const k in file){
+        if(file[k] && !estadoJornadas[k]) estadoJornadas[k] = file[k];
+      }
+    } catch(e) {}
+  }
+
   // Cargar desde KV al iniciar (el KV del cron siempre es fuente, rellena sin pisar)
   (async function(){
     try {
@@ -1323,9 +1340,11 @@ if(isAdmin && !isAll){
           });
         }
         if(data.pagos && Array.isArray(data.pagos)){ pagos = data.pagos; savePagos(); }
+        if(data.jornadasEstado && typeof data.jornadasEstado === 'object'){ estadoJornadas = data.jornadasEstado; }
       }
     } catch(e) {}
     await mergeJornadasData();
+    await mergeEstadoData();
     renderAll();
   })();
 

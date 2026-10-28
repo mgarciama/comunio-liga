@@ -4,6 +4,8 @@ const NUM_JORNADAS = 38;
 const NUM_PLAYERS = 14;
 const IS_MADRID_TARGETS = ['07:00', '13:00', '17:30', '21:00'];
 const MADRID_MARGIN_MIN = 2;
+// Rondas anteriores a revisar si su columna quedo vacia (backfill).
+const BACKFILL_RONDAS = 3;
 
 // Los 14 managers de la liga (el mismo listado que update-jornadas.mjs)
 const MANAGER_IDS = [
@@ -90,7 +92,9 @@ async function fetchClasificacion(session) {
 }
 
 // Estado de la jornada en curso: número, id de round y si todos los partidos finalizaron.
-async function fetchJornadaEstado(session) {
+// `calendario` es opcional: si se le pasa (resultado de fetchCalendario), reutiliza el
+// nombre de ronda y evita una petición extra a rounds/la-liga.
+async function fetchJornadaEstado(session, calendario = null) {
   const { headers } = session;
 
   const res = await fetch(`${BASE}/rounds/league`, { headers });
@@ -98,27 +102,64 @@ async function fetchJornadaEstado(session) {
   const roundId = body.data?.round?.id ?? null;
   const standings = body.data?.league?.standings || [];
 
-  const roundRes = await fetch(`${BASE}/rounds/la-liga?lang=es`, { headers });
-  const roundBody = await roundRes.json();
-  const roundName = roundBody.data?.name || '';
+  let roundName = calendario ? calendario.roundName : '';
+  if (!roundName) {
+    const roundRes = await fetch(`${BASE}/rounds/la-liga?lang=es`, { headers });
+    const roundBody = await roundRes.json();
+    roundName = roundBody.data?.name || '';
+  }
   const match = roundName.match(/(\d+)/);
   const jornadaNum = match ? parseInt(match[1], 10) : null;
 
   let games = [];
   let todosFinalizados = false;
   if (roundId) {
-    const gamesRes = await fetch(`${BASE}/rounds/la-liga/${roundId}`, { headers });
-    const gamesBody = await gamesRes.json();
-    games = gamesBody.data?.games || [];
+    games = await fetchPartidosRonda(session, roundId);
     todosFinalizados = games.length > 0 && games.every(g => g.status === 'finished');
   }
 
   return { roundId, jornadaNum, standings, games, todosFinalizados };
 }
 
-// Actualiza la columna de la jornada en la matriz [14][38] guardada en KV.
-// Solo se llama cuando todos los partidos de la jornada han finalizado.
-async function updateJornadas(session, env, jornadaNum, standings) {
+// Calendario de la liga: nombre de la ronda actual y todas las rondas con su id.
+// Sirve al backfill para traducir "jornada N" a round id.
+async function fetchCalendario(session) {
+  const { headers } = session;
+  const res = await fetch(`${BASE}/rounds/la-liga?lang=es`, { headers });
+  const body = await res.json();
+
+  const rounds = [];
+  const season = body.data?.season;
+  if (season && Array.isArray(season.rounds)) {
+    for (const rd of season.rounds) {
+      const m = rd.name && rd.name.match(/^Round (\d+)/);
+      if (!m) continue;
+      const num = parseInt(m[1], 10);
+      if (num >= 1 && num <= NUM_JORNADAS) rounds[num - 1] = { num, id: rd.id, name: rd.name };
+    }
+  }
+
+  return { roundName: body.data?.name || '', rounds };
+}
+
+// Partidos de una ronda concreta (para saber si todos finalizaron).
+async function fetchPartidosRonda(session, roundId) {
+  const { headers } = session;
+  const res = await fetch(`${BASE}/rounds/la-liga/${roundId}`, { headers });
+  const body = await res.json();
+  return body.data?.games || [];
+}
+
+// Posiciones oficiales ya publicadas de una ronda concreta.
+async function fetchJornadaPosiciones(session, roundId) {
+  const { headers } = session;
+  const res = await fetch(`${BASE}/rounds/league/${roundId}`, { headers });
+  const body = await res.json();
+  return body.data?.league?.standings || [];
+}
+
+// Lee la matriz [14][38] de KV; si falta o está corrupta, devuelve una matriz vacía.
+async function leerMatriz(env) {
   let matrix = Array.from({ length: NUM_PLAYERS }, () => Array(NUM_JORNADAS).fill(null));
   try {
     const raw = await env.COMUNIO.get('jornadas');
@@ -131,25 +172,74 @@ async function updateJornadas(session, env, jornadaNum, standings) {
       }
     }
   } catch (e) {}
+  return matrix;
+}
 
-  const col = Math.min(jornadaNum - 1, NUM_JORNADAS - 1);
+// Lee el mapa { jornada: motivo } de KV; si falta o está corrupto, devuelve {}.
+async function leerEstado(env) {
+  try {
+    const raw = await env.COMUNIO.get('jornadas-estado');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+    }
+  } catch (e) {}
+  return {};
+}
 
-  // Si la jornada ya está completa, no sobreescribir nada.
-  const yaCompleta = matrix.every(row => row[col] != null);
-  if (yaCompleta) {
+// Motivo legible de por qué una jornada no tiene posiciones aún.
+function motivoRonda(games) {
+  if (!Array.isArray(games) || games.length === 0) return null;
+  const aplazados = games.filter(g => g.status === 'postponed');
+  const sinTerminar = games.filter(g => g.status !== 'finished');
+  if (aplazados.length > 0) {
+    const nombres = aplazados.slice(0, 2).map(g => `${g.home?.name || '?'} – ${g.away?.name || '?'}`);
+    const extra = sinTerminar.length > aplazados.length ? ` (y ${sinTerminar.length - aplazados.length} más sin terminar)` : '';
+    return `Partido aplazado: ${nombres.join(', ')}${extra}`;
+  }
+  if (sinTerminar.length > 0) return `${sinTerminar.length}/${games.length} partidos aún sin terminar`;
+  return 'Jornada finalizada pero sin posiciones publicadas aún';
+}
+
+function columnaCompleta(matrix, jornadaNum) {
+  const col = jornadaNum - 1;
+  if (col < 0 || col >= NUM_JORNADAS) return true;
+  return matrix.every(row => row[col] != null);
+}
+
+// Aplica las posiciones oficiales de una jornada sobre la matriz (en memoria).
+// No sobrescribe columnas ya completas y solo devuelve true si escribió algo.
+function aplicarPosiciones(matrix, jornadaNum, standings) {
+  if (columnaCompleta(matrix, jornadaNum)) {
     console.log(`   ⏩ J${jornadaNum}: ya actualizada, no se toca nada.`);
-    return matrix;
+    return false;
   }
 
+  const col = Math.min(jornadaNum - 1, NUM_JORNADAS - 1);
+  let escrito = 0;
   for (const m of standings) {
     const pos = m.lineup?.position;
     if (pos == null) continue;
     const idx = MANAGER_IDS.indexOf(m.id);
-    if (idx !== -1 && idx < NUM_PLAYERS) matrix[idx][col] = pos;
+    if (idx !== -1 && idx < NUM_PLAYERS) {
+      matrix[idx][col] = pos;
+      escrito++;
+    }
   }
 
-  await env.COMUNIO.put('jornadas', JSON.stringify(matrix));
-  console.log(`   ✅ J${jornadaNum}: posiciones guardadas en KV`);
+  if (escrito > 0) console.log(`   ✅ J${jornadaNum}: ${escrito}/${NUM_PLAYERS} posiciones aplicadas en memoria.`);
+  else console.log(`   ⏳ J${jornadaNum}: partidos acabados pero sin posiciones publicadas aún. Se reintentará.`);
+  return escrito > 0;
+}
+
+// Compat/escritura de una sola columna (mantiene el contrato anterior).
+async function updateJornadas(session, env, jornadaNum, standings) {
+  const matrix = await leerMatriz(env);
+  const hayCambios = aplicarPosiciones(matrix, jornadaNum, standings);
+  if (hayCambios) {
+    await env.COMUNIO.put('jornadas', JSON.stringify(matrix));
+    console.log(`   💾 J${jornadaNum}: matriz guardada en KV`);
+  }
   return matrix;
 }
 
@@ -175,10 +265,12 @@ export default {
       const jornadas = await env.COMUNIO.get('jornadas');
       const pagos = await env.COMUNIO.get('pagos');
       const biwenger = await env.COMUNIO.get('biwenger');
+      const jornadasEstado = await leerEstado(env);
       return Response.json({
         jornadas: jornadas ? JSON.parse(jornadas) : null,
         pagos: pagos ? JSON.parse(pagos) : null,
         biwenger: biwenger ? JSON.parse(biwenger) : null,
+        jornadasEstado,
       }, { headers });
     }
 
@@ -202,7 +294,7 @@ export default {
   }
 };
 
-export { biwengerSession, fetchClasificacion, fetchJornadaEstado, updateJornadas };
+export { biwengerSession, fetchClasificacion, fetchJornadaEstado, fetchJornadaPosiciones, updateJornadas, updateBiwenger };
 
 async function updateBiwenger(env) {
   try {
@@ -212,15 +304,68 @@ async function updateBiwenger(env) {
     await env.COMUNIO.put('biwenger', JSON.stringify(clasificacion));
     console.log(`✅ Clasificación actualizada (${clasificacion.standings.length} equipos)`);
 
-    const jornada = await fetchJornadaEstado(session);
+    const calendario = await fetchCalendario(session);
+    const jornada = await fetchJornadaEstado(session, calendario);
     console.log(`⚽ Jornada ${jornada.jornadaNum} (round ${jornada.roundId}) — ${jornada.games.length} partidos`);
-    if (!jornada.todosFinalizados) {
-      console.log(`   ⏳ Hay partidos en juego/pendientes. No se actualiza la matriz.`);
-      return;
-    }
-    if (!jornada.jornadaNum) return;
 
-    await updateJornadas(session, env, jornada.jornadaNum, jornada.standings);
+    const matrix = await leerMatriz(env);
+    let hayCambios = false;
+
+    // Partidos conocidos por jornada (actual + rondas de backfill) para el motivo.
+    const gamesPorRonda = {};
+    if (jornada.jornadaNum) gamesPorRonda[jornada.jornadaNum] = jornada.games;
+
+    // 1) Jornada en curso
+    if (jornada.jornadaNum) {
+      if (jornada.todosFinalizados) {
+        hayCambios = aplicarPosiciones(matrix, jornada.jornadaNum, jornada.standings) || hayCambios;
+      } else {
+        console.log(`   ⏳ J${jornada.jornadaNum}: partidos en juego/pendientes. No se actualiza la matriz.`);
+      }
+
+      // 2) Backfill: rondas anteriores que quedaron sin capturar.
+      // Solo mira columnas no completas, y cada una exige ronda finalizada.
+      for (let n = jornada.jornadaNum - 1; n >= Math.max(1, jornada.jornadaNum - BACKFILL_RONDAS); n--) {
+        if (columnaCompleta(matrix, n)) continue;
+        const rd = calendario.rounds[n - 1];
+        if (!rd) continue;
+
+        const games = await fetchPartidosRonda(session, rd.id);
+        gamesPorRonda[n] = games;
+        if (games.length === 0 || !games.every(g => g.status === 'finished')) {
+          console.log(`   ⏳ J${n}: aún con partidos sin acabar (backfill espera).`);
+          continue;
+        }
+
+        const standings = await fetchJornadaPosiciones(session, rd.id);
+        hayCambios = aplicarPosiciones(matrix, n, standings) || hayCambios;
+      }
+    }
+
+    // 3) Una sola escritura si hubo cambios.
+    if (hayCambios) {
+      await env.COMUNIO.put('jornadas', JSON.stringify(matrix));
+      console.log('   💾 Matriz guardada en KV');
+    }
+
+    // 4) Motivo de las jornadas sin puntuar dentro de la ventana.
+    if (jornada.jornadaNum) {
+      const estado = await leerEstado(env);
+      let estadoCambio = false;
+      for (let n = Math.max(1, jornada.jornadaNum - BACKFILL_RONDAS); n <= jornada.jornadaNum; n++) {
+        if (columnaCompleta(matrix, n)) {
+          if (estado[n]) { delete estado[n]; estadoCambio = true; }
+          continue;
+        }
+        const motivo = gamesPorRonda[n] ? motivoRonda(gamesPorRonda[n]) : null;
+        if (motivo && estado[n] !== motivo) { estado[n] = motivo; estadoCambio = true; }
+        else if (!motivo && estado[n]) { delete estado[n]; estadoCambio = true; }
+      }
+      if (estadoCambio) {
+        await env.COMUNIO.put('jornadas-estado', JSON.stringify(estado));
+        console.log('   🛈 Motivos de jornadas sin puntuar guardados en KV');
+      }
+    }
   } catch (err) {
     console.error('❌ Error actualizando:', err.message);
   }

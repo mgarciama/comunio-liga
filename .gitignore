@@ -4,3 +4,6 @@ wrangler.toml
 node_modules/
 biwenger-raw*.json
 biwenger-market.json
+
+.wrangler/
+.atl/

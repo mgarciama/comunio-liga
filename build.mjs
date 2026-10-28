@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -28,8 +28,12 @@ for (const out of outputs) {
 
 copyFileSync(join(ROOT, 'biwenger-data.json'), join(ROOT, 'public', 'biwenger-data.json'));
 copyFileSync(join(ROOT, 'jornadas-data.json'), join(ROOT, 'public', 'jornadas-data.json'));
+if (existsSync(join(ROOT, 'jornadas-estado.json'))) {
+  copyFileSync(join(ROOT, 'jornadas-estado.json'), join(ROOT, 'public', 'jornadas-estado.json'));
+}
 
 console.log('✔ Build OK');
 for (const out of outputs) console.log('  →', out);
 console.log('  →', join(ROOT, 'public', 'biwenger-data.json'));
 console.log('  →', join(ROOT, 'public', 'jornadas-data.json'));
+if (existsSync(join(ROOT, 'jornadas-estado.json'))) console.log('  →', join(ROOT, 'public', 'jornadas-estado.json'));
